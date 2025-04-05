@@ -2,12 +2,11 @@
 #
 """patch class"""
 
-import os
 from . import config
 
 __version__ = '1.2'
 
-class PatchException(Exception):
-    pass
+class PatchException(Exception):            # noqa: N818
+    """Handle exception for the patchtools package"""
 
 config = config.Config()

@@ -8,11 +8,9 @@ __revision__ = 'Revision: 2.0'
 __author__ = 'Jeff Mahoney'
 
 import sys
-import re
 from patchtools import PatchException
 from patchtools.patch import Patch, EmptyCommitException
 from optparse import OptionParser
-from urllib.parse import urlparse
 import os
 
 
@@ -28,42 +26,40 @@ def export_patch(commit, options, prefix, suffix):
         p = Patch(commit, debug=options.debug, force=options.force)
     except PatchException as e:
         print(e, file=sys.stderr)
-        return None
+        return
     if p.find_commit():
         if options.reference:
             p.add_references(options.reference)
         if options.extract:
             try:
                 p.filter(options.extract)
-            except EmptyCommitException as e:
-                print("Commit %s is now empty. Skipping." % commit, file=sys.stderr)
+            except EmptyCommitException:
+                print(f'Commit {commit} is now empty. Skipping.', file=sys.stderr)
                 return
         if options.exclude:
             try:
                 p.filter(options.exclude, True)
-            except EmptyCommitException as e:
-                print("Commit %s is now empty. Skipping." % commit, file=sys.stderr)
+            except EmptyCommitException:
+                print(f'Commit {commit} is now empty. Skipping.', file=sys.stderr)
                 return
         p.add_signature(options.signed_off_by)
         if options.write:
             fn = p.get_pathname(options.dir, prefix, suffix)
             if os.path.exists(fn) and not options.force:
                 f = fn
-                fn += "-%s" % commit[0:8]
-                print("%s already exists. Using %s" % (f, fn), file=sys.stderr)
+                fn += f'-{commit[0:8]}'
+                print(f'{f} already exists. Using {fn}', file=sys.stderr)
             print(os.path.basename(fn))
             try:
-                f = open(fn, "w")
+                with open(fn, 'w') as f:
+                    print(p.message.as_string(False), file=f)
             except Exception as e:
-                print("Failed to write %s: %s" % (fn, e), file=sys.stderr)
+                print(f'Failed to write {fn}: {e}', file=sys.stderr)
                 raise e
-
-            print(p.message.as_string(False), file=f)
-            f.close()
         else:
             print(p.message.as_string(False))
     else:
-        print("Couldn't locate commit \"%s\"; Skipping." % commit, file=sys.stderr)
+        print(f'Could not locate commit "{commit}"; Skipping.', file=sys.stderr)
         sys.exit(1)
 
 
@@ -95,9 +91,9 @@ def main():
     parser.add_option("-F", "--reference", action="append",
                       help="add reference tag. This option can be specified multiple times.", default=None)
     parser.add_option("-x", "--extract", action="append",
-                      help="extract specific parts of the commit; using a path that ends with / includes all files under that hierarchy. This option can be specified multiple times.", default=None)
+                      help="extract specific parts of the commit; using a path that ends with / includes all files under that hierarchy. This option can be specified multiple times.", default=None)   # noqa: E501
     parser.add_option("-X", "--exclude", action="append",
-                      help="exclude specific parts of the commit; using a path that ends with / excludes all files under that hierarchy. This option can be specified multiple times.", default=None)
+                      help="exclude specific parts of the commit; using a path that ends with / excludes all files under that hierarchy. This option can be specified multiple times.", default=None)   # noqa: E501
     parser.add_option("-S", "--signed-off-by", action="store_true",
                       default=False,
                       help="Use Signed-off-by instead of Acked-by")
@@ -109,7 +105,7 @@ def main():
 
     try:
         n = int(options.first_number)
-    except ValueError: 
+    except ValueError:
         print("option -N needs a number")
         sys.exit(1)
 
