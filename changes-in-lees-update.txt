@@ -1,0 +1,48 @@
+- removed unused imports
+
+- exceptions named ending in "Error"
+
+- no arguments that hide built-ins (like "input")
+
+- make some args excplicit to built-ins
+
+- use context manager for open()
+
+- use commas for all members of array, including last one
+
+- don't catch exception "as e:" then ignore it.
+
+- don't need "elif" or "else" after a return
+
+- remove unused variables
+
+- use f-strings
+
+- use list comprehension? (not done yet)
+
+- "magic" values (some are left)
+
+- have 2 spaces between functions/classes
+
+- have spaces around '=' for assignment statements, but no spaces for attributes
+
+- added a test/ subdir and a single test (so far), using unittest
+  (and a doc to explain it a bit)
+
+
+
+PROBLEMS NOT YET SOLVED
+
+- too many branches
+
+- to many lines in a function
+
+- some magic values are a mystery to me, so leaving them alone
+
+- lines too long (who cares)
+
+- using shell=true in run_command: need to add an optional "dir" argument?
+
+- all the cool "typing" stuff
+
+- setting mode 755 for patch directory? really?
