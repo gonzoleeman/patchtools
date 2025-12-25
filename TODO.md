@@ -21,7 +21,7 @@ be worth it.
 
 Do not suggest just writing to /usr/local. Use "--user"?
 
-From Michal.
+From Michal. 12/22/25
 
 ### squash COPYING commits
 
@@ -29,4 +29,10 @@ This file was created first as an Apache-2.0 file, then
 changed to GPL-2.0. Squash those two commits for that
 file.
 
-Frm Michal.
+Frm Michal. 12/22/25
+
+### sequence unit test creation before other changes
+
+Not sure this will help ???
+
+From Michal Suchanek 12/24/2025
