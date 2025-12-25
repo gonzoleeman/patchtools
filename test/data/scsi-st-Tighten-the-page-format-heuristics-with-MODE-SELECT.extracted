@@ -21,11 +21,10 @@ Link: https://lore.kernel.org/r/20250311112516.5548-4-Kai.Makisara@kolumbus.fi
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Acked-by: Fred Rubbel <frubbel@suse.com>
 ---
- drivers/scsi/st.c | 4 +++-
+
+ drivers/scsi/st.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/st.c b/drivers/scsi/st.c
-index fda797581019..74a6830b7ed8 100644
 --- a/drivers/scsi/st.c
 +++ b/drivers/scsi/st.c
 @@ -3104,7 +3104,9 @@ static int st_int_ioctl(struct scsi_tape *STp, unsigned int cmd_in, unsigned lon
@@ -39,4 +38,5 @@ index fda797581019..74a6830b7ed8 100644
  				/* Try the other possible state of Page Format if not
  				   already tried */
  				STp->use_pf = (STp->use_pf ^ USE_PF) | PF_TESTED;
+
 
