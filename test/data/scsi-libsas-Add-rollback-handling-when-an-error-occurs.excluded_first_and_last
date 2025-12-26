@@ -4,7 +4,7 @@ Subject: scsi: libsas: Add rollback handling when an error occurs
 Git-commit: 362432e9b9aefb914ab7d9f86c9fc384a6620c41
  (partial)
 Patch-mainline: v6.19-rc1
-Patch-filtered: drivers/scsi/libsas/sas_internal.h
+Patch-filtered: !drivers/scsi/libsas/sas_init.c !drivers/scsi/libsas/sas_phy.c
 
 In sas_register_phys(), if an error is triggered in the loop process, we
 need to roll back the resources that have already been requested.
@@ -17,7 +17,7 @@ Signed-off-by: Chaohai Chen <wdhh6@aliyun.com>
 Reviewed-by: John Garry <john.g.garry@oracle.com>
 Link: https://patch.msgid.link/20251206060616.69216-1-wdhh6@aliyun.com
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Acked-by: Fred Rubbel <frubbel@suse.com>
+Acked-by: Barney Rubbel <brubbel@suse.com>
 ---
 
  drivers/scsi/libsas/sas_internal.h |    1 +
