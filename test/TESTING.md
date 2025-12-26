@@ -12,6 +12,22 @@ versions of the tools, as desired. So be sure the scripts being
 tested are the ones you expect to be tested, by running something
 like "which exportpatch".
 
+## How to test
+
+The pyunit unit testing framework is used, aka unittest.
+
+The tests all live in the "test/" subdirectory, with a "data/"
+subdirectory under it, where known good patchfiles exist,
+
+For configuration, the tests create their own configuration file,
+with the bogus user Barney Rubbel. It also requires a valid Linux
+git repository whos pathname is passed to the tests via the
+"LINUX\_GIT" environment variable. This repository should be
+up to date, and pointed at a valid Linux repo, such as:
+
+    git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+
+
 ## Things to test
 
 ### exportpatch
@@ -61,19 +77,28 @@ are, for testing.
 
 * extract testing
 
-** export to file, extract whole (single) file              -- done (5 cases)
+** export to file, extract whole (single) file              -- done (6 cases)
    repeat with two files
    repeat with specified file not in patch w/one file
    repeat with specified file not in patch w/two files
    repeat with one of two files in patch specified
+   repeat with multiple files and multiple 'x' options
 
-* exclude testing
 
+* exclude testing                                           -- done (6 cases)
+  exclude only file in one-file commit
+  exclude all files in multi-file commit with a pattern
+  exclude all files in multi-file commit with repeated options
+  exclude nothing (bogus path) from one-file commit
+  exclude nothing (bogus path) from multi-file commit
+  exclude two files from multi-file commit
 
-* export a tag (not a commit)
 
 
 * test various commits to ensure "Patch-mainline" is correct
+
+(How to do this?)
+
 
 
 ### error ops

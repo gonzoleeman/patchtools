@@ -15,7 +15,7 @@ Signed-off-by: Chaohai Chen <wdhh6@aliyun.com>
 Reviewed-by: John Garry <john.g.garry@oracle.com>
 Link: https://patch.msgid.link/20251206060616.69216-1-wdhh6@aliyun.com
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Acked-by: Fred Rubbel <frubbel@suse.com>
+Acked-by: Barney Rubbel <brubbel@suse.com>
 ---
  drivers/scsi/libsas/sas_init.c     |  1 +
  drivers/scsi/libsas/sas_internal.h |  1 +
