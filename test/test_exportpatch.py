@@ -18,6 +18,9 @@ def my_run_command(command, our_input=None, cwd=None):
     return (proc.returncode, proc.stdout, proc.stderr)
 
 
+def call_code_directly(command, our_input=None, cwd=None):
+    pass
+
 def get_patch_path_no_exist(fname, dirname=None, prefix='', suffix='', truncate=64):
     """Return a patch filename that isn't too long, and ensure it does not exist.
 
@@ -40,7 +43,7 @@ def find_data_dir_path():
 
     Look first in the current directory. If not there,
     then look for a 'test' subdirectory, and look there."""
-    for data_pathname in ['data', 'test/data']:
+    for data_pathname in ['data', 'test/data', '../data', '../test/data']:
         data_path = Path(data_pathname)
         if data_path.is_dir():
             return data_path
@@ -359,6 +362,7 @@ class TestExportpatchExtract(unittest.TestCase):
         """Set up for the tests in this class."""
         self.ddir = find_data_dir_path()
         self.assertTrue(self.ddir, 'cannot find "data" subdirectory')
+        filecmp.clear_cache()
 
     def test_extract_of_all_1f(self):
         """Test exportpatch that extracts the one file in a patch."""
@@ -478,6 +482,7 @@ class TestExportpatchExclude(unittest.TestCase):
         """Set up for the tests in this class."""
         self.ddir = find_data_dir_path()
         self.assertTrue(self.ddir, 'cannot find "data" subdirectory')
+        filecmp.clear_cache()
 
     def test_exclude_of_all_1f(self):
         """Test exportpatch that excludes the only file in a single-file patch."""
