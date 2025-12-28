@@ -18,9 +18,6 @@ def my_run_command(command, our_input=None, cwd=None):
     return (proc.returncode, proc.stdout, proc.stderr)
 
 
-def call_code_directly(command, our_input=None, cwd=None):
-    pass
-
 def get_patch_path_no_exist(fname, dirname=None, prefix='', suffix='', truncate=64):
     """Return a patch filename that isn't too long, and ensure it does not exist.
 
