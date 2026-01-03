@@ -1,12 +1,11 @@
-#!/usr/bin/python3
-# vim: sw=4 ts=4 et si:
-"""
+"""Fix an existing patch with the proper tags.
+
 Take an existing patch and add the appropriate tags, drawing from known
 repositories to discover the origin. Also, renames the patch using the
 subject found in the patch itself.
 """
 
-__revision__ = 'Revision: 2.0'
+__revision__ = 'Revision: 2.5'
 __author__ = 'Jeff Mahoney'
 
 
@@ -16,7 +15,9 @@ from optparse import OptionParser
 import sys
 import os
 
+
 def process_file(pathname, options):
+    """Fix one patchfile. Return 0 for success."""
     try:
         p = Patch()
         f = open(pathname, "r")
@@ -79,7 +80,8 @@ def process_file(pathname, options):
     except PatchException as e:
         print(e, file=sys.stderr)
 
-if __name__ == "__main__":
+def main():
+    """The main entry point for this module. Return 0 for success."""
     parser = OptionParser(version='%prog ' + __revision__)
     parser.add_option("-n", "--dry-run", action="store_true", default=False,
                       help="Output results to stdout but don't commit change")
@@ -112,9 +114,11 @@ if __name__ == "__main__":
 
     if not args:
         parser.error("Must supply patch filename(s)")
-        sys.exit(1)
+        return 1
 
     for pathname in args:
         process_file(pathname, options)
 
-    sys.exit(0)
+    return 0
+
+# vim: sw=4 ts=4 et si:
