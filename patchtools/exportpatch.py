@@ -1,19 +1,15 @@
-#!/usr/bin/python3
-# vim: sw=4 ts=4 et si:
-"""
-Export a patch from a repository with the SUSE set of patch headers.
+"""Export a patch from a repository with the SUSE set of patch headers.
+
 From Jeff Mahoney, updated by Lee Duncan.
 """
 
-__revision__ = 'Revision: 2.0'
+__revision__ = 'Revision: 2.5'
 __author__ = 'Jeff Mahoney'
 
 import sys
-import re
 from patchtools import PatchException
 from patchtools.patch import Patch, EmptyCommitException
 from optparse import OptionParser
-from urllib.parse import urlparse
 import os
 
 
@@ -23,12 +19,14 @@ WRITE=False
 # default directory where patch gets written
 DIR="."
 
+
 def export_patch(commit, options, prefix, suffix):
+    """Export a single commit/patch. Return 0 for success, else 1."""
     try:
         p = Patch(commit, debug=options.debug, force=options.force)
     except PatchException as e:
         print(e, file=sys.stderr)
-        return None
+        return 1
     if p.find_commit():
         if options.reference:
             p.add_references(options.reference)
@@ -37,13 +35,13 @@ def export_patch(commit, options, prefix, suffix):
                 p.filter(options.extract)
             except EmptyCommitException as e:
                 print("Commit %s is now empty. Skipping." % commit, file=sys.stderr)
-                return
+                return 0
         if options.exclude:
             try:
                 p.filter(options.exclude, True)
             except EmptyCommitException as e:
                 print("Commit %s is now empty. Skipping." % commit, file=sys.stderr)
-                return
+                return 0
         p.add_signature(options.signed_off_by)
         if options.write:
             fn = p.get_pathname(options.dir, prefix, suffix)
@@ -62,11 +60,14 @@ def export_patch(commit, options, prefix, suffix):
             f.close()
         else:
             print(p.message.as_string(False))
-    else:
-        print("Couldn't locate commit \"%s\"; Skipping." % commit, file=sys.stderr)
-        sys.exit(1)
+        return 0
+    
+    print("Couldn't locate commit \"%s\"; Skipping." % commit, file=sys.stderr)
+    return 1
 
-if __name__ == "__main__":
+
+def main():
+    """The main entry point for this module. Return 0 for success."""
     parser = OptionParser(version='%prog ' + __revision__,
                           usage='%prog [options] <LIST OF COMMIT HASHES> --  export patch with proper patch headers')
     parser.add_option("-w", "--write", action="store_true",
@@ -103,17 +104,17 @@ if __name__ == "__main__":
 
     if not args:
         parser.error("Must supply patch hash(es)")
-        sys.exit(1)
+        return 1
 
     try:
         n = int(options.first_number)
     except ValueError: 
         print("option -N needs a number")
-        sys.exit(1)
+        return 1
 
     if n + len(args) > 9999 or n < 0:
         print("The starting number + commits needs to be in the range 0 - 9999")
-        sys.exit(1)
+        return 1
     suffix = ""
     if options.suffix:
         suffix = ".patch"
@@ -130,7 +131,11 @@ if __name__ == "__main__":
         if options.numeric:
             prefix = "{0:0{1}}-".format(n, num_width)
 
-        export_patch(commit, options, prefix, suffix)
+        res = export_patch(commit, options, prefix, suffix)
+        if res:
+            return res
         n += 1
 
-    sys.exit(0)
+    return 0
+
+# vim: sw=4 ts=4 et si:
