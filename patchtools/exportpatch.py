@@ -61,7 +61,7 @@ def export_patch(commit, options, prefix, suffix):
         else:
             print(p.message.as_string(False))
         return 0
-    
+
     print("Couldn't locate commit \"%s\"; Skipping." % commit, file=sys.stderr)
     return 1
 
