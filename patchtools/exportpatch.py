@@ -33,13 +33,13 @@ def export_patch(commit, options, prefix, suffix):
         if options.extract:
             try:
                 p.filter(options.extract)
-            except EmptyCommitException as e:
+            except EmptyCommitException:
                 print("Commit %s is now empty. Skipping." % commit, file=sys.stderr)
                 return 0
         if options.exclude:
             try:
                 p.filter(options.exclude, True)
-            except EmptyCommitException as e:
+            except EmptyCommitException:
                 print("Commit %s is now empty. Skipping." % commit, file=sys.stderr)
                 return 0
         p.add_signature(options.signed_off_by)
