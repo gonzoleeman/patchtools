@@ -65,11 +65,29 @@ def export_patch(commit, options, prefix, suffix):
     print("Couldn't locate commit \"%s\"; Skipping." % commit, file=sys.stderr)
     return 1
 
+#
+# set up Option Parsing class so that we can
+# stop the option parser from calling sys.exit()
+# when it encounters an error
+#
+
+class OptionParsingError(RuntimeError):
+    """An exception raised when parser.error() is called."""
+    def __init__(self, msg):
+        self.msg = msg
+
+
+class ModifiedOptionParser(OptionParser):
+    """Our own Option Parsing class, that does not call sys.exit()."""
+    def error(self, msg):
+        raise OptionParsingError(msg)
+
 
 def main():
     """The main entry point for this module. Return 0 for success."""
-    parser = OptionParser(version='%prog ' + __revision__,
-                          usage='%prog [options] <LIST OF COMMIT HASHES> --  export patch with proper patch headers')
+    parser = ModifiedOptionParser(
+                version='%prog ' + __revision__,
+                usage='%prog [options] <LIST OF COMMIT HASHES> --  export patch with proper patch headers')
     parser.add_option("-w", "--write", action="store_true",
                       help="write patch file(s) instead of stdout [default is %default]",
                       default=WRITE)
@@ -100,10 +118,16 @@ def main():
     parser.add_option("-S", "--signed-off-by", action="store_true",
                       default=False,
                       help="Use Signed-off-by instead of Acked-by")
-    (options, args) = parser.parse_args()
+
+    try:
+        (options, args) = parser.parse_args()
+
+    except OptionParsingError as e:
+        print(f'Option paring error: {e.msg}', file=sys.stderr)
+        return 1
 
     if not args:
-        parser.error("Must supply patch hash(es)")
+        print("Must supply patch hash(es)", file=sys.stderr)
         return 1
 
     if options.first_number + len(args) > 9999 or options.first_number < 0:

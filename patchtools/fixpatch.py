@@ -80,9 +80,26 @@ def process_file(pathname, options):
     except PatchException as e:
         print(e, file=sys.stderr)
 
+#
+# set up Option Parsing class so that we can
+# stop the option parser from calling sys.exit()
+# when it encounters an error
+#
+
+class OptionParsingError(RuntimeError):
+    """An exception raised when parser.error() is called."""
+    def __init__(self, msg):
+        self.msg = msg
+
+class ModifiedOptionParser(OptionParser):
+    """Our own Option Parsing class, that does not call sys.exit()."""
+    def error(self, msg):
+        raise OptionParsingError(msg)
+
+
 def main():
     """The main entry point for this module. Return 0 for success."""
-    parser = OptionParser(
+    parser = ModifiedOptionParser(
                 version='%prog ' + __revision__,
                 usage='%prog [options] <LIST OF PATCH FILES TO FIX> -- fix patch files with proper headers')
     parser.add_option("-n", "--dry-run", action="store_true", default=False,
@@ -111,10 +128,15 @@ def main():
                       help='When generating the patch name, append ".patch"',
                       default=False)
 
-    (options, args) = parser.parse_args()
+    try:
+        (options, args) = parser.parse_args()
+
+    except OptionParsingError as e:
+        print(f'Option paring error: {e.msg}', file=sys.stderr)
+        return 1
 
     if not args:
-        parser.error("Must supply patch filename(s)")
+        print("Must supply patch filename(s)", file=sys.stderr)
         return 1
 
     for pathname in args:
