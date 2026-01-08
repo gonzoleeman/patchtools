@@ -29,7 +29,7 @@ def process_file(pathname, options):
                 suffix = ".patch"
             fn = p.get_pathname()
             print("{}{}".format(fn, suffix))
-            return
+            return 0
 
         if options.update_only:
             options.header_only = True
@@ -55,7 +55,7 @@ def process_file(pathname, options):
 
         if options.dry_run:
             print(p.message.as_string(unixfrom=False))
-            return
+            return 0
 
         suffix=""
         if options.suffix:
@@ -70,7 +70,7 @@ def process_file(pathname, options):
                 fn = "{}/{}".format(dirname, fn)
             if fn != pathname and os.path.exists(fn) and not options.force:
                 print("%s already exists." % fn, file=sys.stderr)
-                return
+                return 1
 
         f = open(fn, "w")
         print(fn)
@@ -81,6 +81,10 @@ def process_file(pathname, options):
 
     except PatchException as e:
         print(e, file=sys.stderr)
+        return 1
+
+    return 0
+
 
 #
 # set up Option Parsing class so that we can
@@ -142,7 +146,9 @@ def main():
         return 1
 
     for pathname in args:
-        process_file(pathname, options)
+        res = process_file(pathname, options)
+        if res:
+            return res
 
     return 0
 
