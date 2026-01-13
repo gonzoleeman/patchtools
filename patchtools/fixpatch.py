@@ -10,8 +10,8 @@ __author__ = 'Jeff Mahoney'
 
 
 from patchtools import PatchException
+from patchtools.modified_optparse import ModifiedOptionParser, OptionParsingError
 from patchtools.patch import Patch
-from optparse import OptionParser
 import sys
 import os
 
@@ -84,23 +84,6 @@ def process_file(pathname, options):
         return 1
 
     return 0
-
-
-#
-# set up Option Parsing class so that we can
-# stop the option parser from calling sys.exit()
-# when it encounters an error
-#
-
-class OptionParsingError(RuntimeError):
-    """An exception raised when parser.error() is called."""
-    def __init__(self, msg):
-        self.msg = msg
-
-class ModifiedOptionParser(OptionParser):
-    """Our own Option Parsing class, that does not call sys.exit()."""
-    def error(self, msg):
-        raise OptionParsingError(msg)
 
 
 def main():
