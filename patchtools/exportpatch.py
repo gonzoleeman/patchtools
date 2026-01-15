@@ -52,7 +52,7 @@ def export_patch(commit, options, prefix, suffix):
             print(os.path.basename(fn))
             try:
                 f = open(fn, "w")
-            except (FileNotFoundError, PermissionError) as e:
+            except OSError as e:
                 print(e, file=sys.stderr)
                 return 1
 
