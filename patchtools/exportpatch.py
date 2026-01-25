@@ -52,7 +52,7 @@ def export_patch(commit, options, prefix, suffix):
                 print("%s already exists. Using %s" % (f, fn), file=sys.stderr)
             print(os.path.basename(fn))
             try:
-                f = open(fn, "w")
+                f = open(fn, 'w', encoding='utf-8')
             except OSError as e:
                 print(e, file=sys.stderr)
                 return 1

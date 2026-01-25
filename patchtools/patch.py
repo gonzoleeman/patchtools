@@ -177,7 +177,7 @@ class Patch:
         elif self.repo and not self.message['Git-repo']:
             r = self.repourl
             if not r:
-                    r = patchops.get_git_repo_url(self.repo)
+                r = patchops.get_git_repo_url(self.repo)
             if r and r not in self.mainline_repo_list:
                 self.message.add_header('Git-repo', r)
                 self.repourl = r
@@ -188,7 +188,7 @@ class Patch:
         if self.in_mainline:
             tag = patchops.get_tag(self.commit, self.repo)
             if tag and tag == "undefined":
-                    tag = patchops.get_next_tag(self.repo)
+                tag = patchops.get_next_tag(self.repo)
             if tag:
                 if 'Patch-mainline' in self.message:
                     self.message.replace_header('Patch-mainline', tag)
@@ -206,7 +206,7 @@ class Patch:
 
     def from_file(self, pathname):
         """Set up our Patch instance from an email file."""
-        f = open(pathname, "r")
+        f = open(pathname, 'r', encoding='utf-8')
         self.from_email(f.read())
         f.close()
 
@@ -296,7 +296,7 @@ class Patch:
                 if commit:
                     r = self.repourl
                     if not r:
-                            r = patchops.get_git_repo_url(self.repo)
+                        r = patchops.get_git_repo_url(self.repo)
                     if r and r in self.mainline_repo_list:
                         self.in_mainline = True
                     else:
@@ -426,7 +426,7 @@ class Patch:
         body = ""
         chunk = ""
         text = ""
-        
+
         in_chunk = False
         in_patch = False
         lines = self.body().splitlines()

@@ -22,7 +22,7 @@ def fix_patchfile(pathname, options):
     """Fix one patchfile. Return 0 for success."""
     try:
         p = Patch()
-        f = open(pathname, "r")
+        f = open(pathname, 'r', encoding='utf-8')
         p.from_email(f.read())
 
         if options.name_only:
@@ -74,7 +74,7 @@ def fix_patchfile(pathname, options):
                 print("%s already exists." % fn, file=sys.stderr)
                 return 1
 
-        f = open(fn, "w")
+        f = open(fn, 'w', encoding='utf-8')
         print(fn)
         print(p.message.as_string(unixfrom=False), file=f)
         f.close()
