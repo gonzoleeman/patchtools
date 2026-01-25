@@ -11,6 +11,7 @@ from patchtools.patcherror import PatchError
 
 
 def key_version(tag):
+    """Return the version number from the tag supplied."""
     m = re.match(r"v2\.(\d+)\.(\d+)(\.(\d+)|-rc(\d+)|)", tag)
     if m:
         major = 2
@@ -36,7 +37,7 @@ def key_version(tag):
 
 
 class LocalCommitError(PatchError):
-    pass
+    """Local Commit error."""
 
 
 def git_dir(pathname):
@@ -50,6 +51,7 @@ def git_dir(pathname):
     return None
 
 def get_tag(commit, repo):
+    """Get the git tag for the specified commit."""
     tag = run_command(f"git --git-dir={git_dir(repo)} name-rev --refs=refs/tags/v* {commit}")
     if tag == "":
         return None
@@ -63,6 +65,7 @@ def get_tag(commit, repo):
     return None
 
 def get_next_tag(repo):
+    """Get the next tag."""
     tag = run_command(f"git -git-dir={git_dir(repo)} tag -l 'v[0-9]*'")
     if tag == "":
         return None
@@ -85,9 +88,11 @@ def get_next_tag(repo):
     return None
 
 def get_diffstat(message):
+    """Return output of the diffstat command for our message."""
     return run_command("diffstat -p1", our_input=message)
 
 def get_git_repo_url(dir):
+    """Return the remote git repo URL."""
     output = run_command(f"git --git-dir={git_dir(dir)} remote show origin -n")
     for line in output.split('\n'):
         m = re.search(r"URL:\s+(\S+)", line)
@@ -97,35 +102,37 @@ def get_git_repo_url(dir):
     return None
 
 def confirm_commit(commit, repo):
+    """Return whether or not the specified git is in the specified repo."""
     gdir = git_dir(repo)
+    if not gdir:
+        return False
     head_name = run_command(f"git --git-dir={gdir} symbolic-ref --short HEAD")
     remote_name = run_command(f"git --git-dir={gdir} config --get branch.{head_name}.remote")
     out = run_command(f"git --git-dir={gdir} rev-list HEAD --not --remotes {remote_name}")
     if out == "":
         return True
-
     commits = out.split()
     if commit in commits:
         return False
     return True
 
 def canonicalize_commit(commit, repo):
+    """Return git's canonicalization of the specified commit."""
     return run_command(f"git --git-dir={git_dir(repo)} show -s {commit}^{{}} --pretty=%H")
 
 def get_commit(commit, repo, force=False):
+    """Return git's idea of the specified commit."""
     data = run_command(f"git --git-dir={git_dir(repo)} diff-tree --no-renames --pretty=email -r -p --cc --stat {commit}")
-    if data == "":
+    if not data:
         return None
-
     if not force and not confirm_commit(commit, repo):
         raise LocalCommitError("Commit is not in the remote repository. Use -f to override.")
-
     return data
 
 def safe_filename(name, keep_non_patch_brackets = True):
-    if name is None:
+    """Return 'safe' version of the patch filename."""
+    if not name:
         return name
-
     # These mimic the filters that git-am applies when it parses the email
     # to remove noise from the subject line.
     # keep_non_patch_brackets=True is the equivalent of git am -b
@@ -133,7 +140,6 @@ def safe_filename(name, keep_non_patch_brackets = True):
         name = re.sub(r'(([Rr][Ee]:|\[PATCH[^]]*\])[ \t]*)*', '', name, count=1)
     else:
         name = re.sub(r'(([Rr][Ee]:|\[[^]]*\])[ \t]*)*', '', name, count=1)
-
     # This mimics the filters that git-format-patch applies prior to adding
     # prefixes or suffixes.
     name = re.sub(r'[^_A-Z0-9a-z\.]', '-', name)

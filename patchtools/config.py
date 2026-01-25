@@ -18,22 +18,24 @@ MAINLINE_URLS = [ """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linu
                 ]
 
 def get_git_repo_url(gitdir):
+    """Return the git remote repo URL, if possible."""
     output = run_command(f"git --git-dir={git_dir(gitdir)} remote show origin -n")
     for line in output.split('\n'):
         m = re.search(r"URL:\s+(\S+)", line)
         if m:
             return m.group(1)
-
     return None
 
 def get_git_config(gitdir, var):
+    """Return a configuraton variable for the specified repo."""
     res = run_command(f"git --git-dir={git_dir(gitdir)} config {var}")
     return res.strip()
 
 # We deliberately don't catch exceptions when the option is mandatory
 class Config:
+    """Configuration class."""
     def __init__(self):
-        # Set some sane defaults
+        """Initialize Config class with some defaults."""
         self.repos = [ os.getcwd() ]
         self.mainline_repos = MAINLINE_URLS
         self.merge_mainline_repos()
@@ -45,6 +47,7 @@ class Config:
         self.merge_mainline_repos()
 
     def read_configs(self):
+        """Read the configuration files."""
         config = configparser.ConfigParser()
         files_read = config.read([ '/etc/patch.cfg',
                                    '%s/etc/patch.cfg' % site.USER_BASE,
@@ -69,12 +72,14 @@ class Config:
             pass
 
     def merge_mainline_repos(self):
+        """Merge repos found in our repo list into the mainline list, if appropriate."""
         for repo in self.repos:
             url = get_git_repo_url(repo)
             if url in self.mainline_repos:
                 self.mainline_repos.append(repo)
 
     def _canonicalize(self, path):
+        """Return the canonicalized pathname."""
         if path[0] == '/':
             return os.path.realpath(path)
         elif path == ".":
@@ -83,12 +88,15 @@ class Config:
             return path
 
     def get_repos(self):
+        """Return a canonicalized list of our repos."""
         return list(self._canonicalize(r) for r in self.repos)
 
     def get_mainline_repos(self):
+        """Return a canonicalized list of the mainline repos."""
         return list(self._canonicalize(r) for r in self.mainline_repos)
 
     def get_default_mainline_repo(self):
+        """Return the first mainline repo."""
         return self._canonicalize(self.mainline_repos[0])
 
 
