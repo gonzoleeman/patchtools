@@ -3,13 +3,13 @@
 From Jeff Mahoney, updated by Lee Duncan.
 """
 
-__revision__ = 'Revision: 2.5'
 __author__ = 'Jeff Mahoney'
 
 import sys
 from patchtools import PatchException
 from patchtools.modified_optparse import ModifiedOptionParser, OptionParsingError
 from patchtools.patch import Patch, EmptyCommitException
+from patchtools.version import __version__
 import os
 
 
@@ -69,7 +69,7 @@ def export_patch(commit, options, prefix, suffix):
 def main():
     """The main entry point for this module. Return 0 for success."""
     parser = ModifiedOptionParser(
-                version='%prog ' + __revision__,
+                version='%prog ' + __version__,
                 usage='%prog [options] <LIST OF COMMIT HASHES> --  export patch with proper patch headers')
     parser.add_option("-w", "--write", action="store_true",
                       help="write patch file(s) instead of stdout [default is %default]",

@@ -1,13 +1,11 @@
-# vim: sw=4 ts=4 et si:
-#
-"""patch class"""
+"""patch class initialization"""
 
 import os
 from . import config
-
-__version__ = '1.2'
 
 class PatchException(Exception):
     pass
 
 config = config.Config()
+
+# vim: sw=4 ts=4 et si:

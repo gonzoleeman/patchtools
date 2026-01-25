@@ -5,13 +5,13 @@ repositories to discover the origin. Also, renames the patch using the
 subject found in the patch itself.
 """
 
-__revision__ = 'Revision: 2.5'
 __author__ = 'Jeff Mahoney'
 
 
 from patchtools import PatchException
 from patchtools.modified_optparse import ModifiedOptionParser, OptionParsingError
 from patchtools.patch import Patch
+from patchtools.version import __version__
 import sys
 import os
 
@@ -89,7 +89,7 @@ def process_file(pathname, options):
 def main():
     """The main entry point for this module. Return 0 for success."""
     parser = ModifiedOptionParser(
-                version='%prog ' + __revision__,
+                version='%prog ' + __version__,
                 usage='%prog [options] <LIST OF PATCH FILES TO FIX> -- fix patch files with proper headers')
     parser.add_option("-n", "--dry-run", action="store_true", default=False,
                       help="Output results to stdout but don't commit change")
