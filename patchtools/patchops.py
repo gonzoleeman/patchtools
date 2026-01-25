@@ -74,7 +74,7 @@ def get_next_tag(repo):
     return None
 
 def get_diffstat(message):
-    return run_command("diffstat -p1", input=message)
+    return run_command("diffstat -p1", our_input=message)
 
 def get_git_repo_url(dir):
     command = f"(cd {dir}; git remote show origin -n)"
