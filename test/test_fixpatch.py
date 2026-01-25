@@ -10,7 +10,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from .util import DATA_PATH, call_mut, compare_text_and_file, get_patch_path, import_mut
+from .util import (DATA_PATH, call_mut, compare_text_and_file, get_patch_path,
+                   import_mut)
 
 # the module under test (and the command/script name, as well)
 MUT = 'fixpatch'

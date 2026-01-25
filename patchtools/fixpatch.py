@@ -8,12 +8,14 @@ subject found in the patch itself.
 __author__ = 'Jeff Mahoney'
 
 
-from patchtools.patcherror import PatchError
-from patchtools.modified_optparse import ModifiedOptionParser, OptionParsingError
-from patchtools.patch import Patch
-from patchtools.version import __version__
-import sys
 import os
+import sys
+
+from patchtools.modified_optparse import (ModifiedOptionParser,
+                                          OptionParsingError)
+from patchtools.patch import Patch
+from patchtools.patcherror import PatchError
+from patchtools.version import __version__
 
 
 def fix_patchfile(pathname, options):

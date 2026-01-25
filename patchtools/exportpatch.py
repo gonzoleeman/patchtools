@@ -5,13 +5,14 @@ From Jeff Mahoney, updated by Lee Duncan.
 
 __author__ = 'Jeff Mahoney'
 
-import sys
-from patchtools.patcherror import PatchError
-from patchtools.modified_optparse import ModifiedOptionParser, OptionParsingError
-from patchtools.patch import Patch, EmptyCommitError
-from patchtools.version import __version__
 import os
+import sys
 
+from patchtools.modified_optparse import (ModifiedOptionParser,
+                                          OptionParsingError)
+from patchtools.patch import EmptyCommitError, Patch
+from patchtools.patcherror import PatchError
+from patchtools.version import __version__
 
 # default: do not write out a patch file
 WRITE=False

@@ -2,16 +2,19 @@
 Support package for doing SUSE Patch operations
 """
 
+import email.parser
+import os
+import os.path
+import re
+import string
+import urllib.error
+import urllib.parse
+import urllib.request
+from urllib.parse import urlparse
+
 import patchtools.patchops as patchops
 from patchtools.config import config
 from patchtools.patcherror import PatchError
-import re
-import os
-import os.path
-import email.parser
-import urllib.request, urllib.parse, urllib.error
-from urllib.parse import urlparse
-import string
 
 _patch_start_re = re.compile(r"^(---|\*\*\*|Index:)[ \t][^ \t]|^diff -|^index [0-9a-f]{7}")
 

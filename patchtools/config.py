@@ -2,11 +2,11 @@
 Represent Git Repos
 """
 
+import configparser
 import os
 import pwd
-import site
-import configparser
 import re
+import site
 
 from patchtools.command import run_command
 
