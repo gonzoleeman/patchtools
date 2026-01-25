@@ -2,11 +2,13 @@
 Run a command.
 """
 
+from pathlib import Path
 from subprocess import PIPE, run
 
 
 def run_command(command, our_input=None, stdout=PIPE):
     """Run a command, with optional input and output supplied."""
-    proc = run(command, shell=True, encoding='utf-8',
-               input=our_input, stdout=stdout)
+    with Path('/dev/null').open('wb') as dn:
+        proc = run(command.split(), encoding='utf-8', input=our_input,
+                   stdout=stdout, stderr=dn, check=False)
     return proc.stdout

@@ -9,6 +9,7 @@ import re
 import site
 
 from patchtools.command import run_command
+from patchtools.patchops import git_dir
 
 MAINLINE_URLS = [ """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git""",
                   """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git""",
@@ -17,8 +18,7 @@ MAINLINE_URLS = [ """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linu
                 ]
 
 def get_git_repo_url(gitdir):
-    command = f"(cd {gitdir}; git remote show origin -n)"
-    output = run_command(command)
+    output = run_command(f"git --git-dir={git_dir(gitdir)} remote show origin -n")
     for line in output.split('\n'):
         m = re.search(r"URL:\s+(\S+)", line)
         if m:
@@ -27,8 +27,8 @@ def get_git_repo_url(gitdir):
     return None
 
 def get_git_config(gitdir, var):
-    command = f"(cd {gitdir}; git config {var})"
-    return run_command(command).strip()
+    res = run_command(f"git --git-dir={git_dir(gitdir)} config {var}")
+    return res.strip()
 
 # We deliberately don't catch exceptions when the option is mandatory
 class Config:

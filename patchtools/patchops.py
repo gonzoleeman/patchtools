@@ -1,9 +1,10 @@
-# vim: sw=4 ts=4 et si:
 """
 Support package for doing SUSE Patch operations
 """
 
+from pathlib import Path
 import re
+from sys import stderr
 
 from patchtools.command import run_command
 from patchtools.patcherror import PatchError
@@ -33,12 +34,23 @@ def key_version(tag):
 
     return ()
 
+
 class LocalCommitError(PatchError):
     pass
 
+
+def git_dir(pathname):
+    """Return the git subdirectory string under the specified path."""
+    print(f'DEBUG: git_dir({pathname}): entering', file=stderr)
+    if pathname:
+        if Path(pathname).exists():
+            gdir = Path(pathname) / '.git'
+            if gdir.exists():
+                return str(gdir)
+    return None
+
 def get_tag(commit, repo):
-    command = f"(cd {repo};git name-rev --refs=refs/tags/v* {commit})"
-    tag = run_command(command)
+    tag = run_command(f"git --git-dir={git_dir(repo)} name-rev --refs=refs/tags/v* {commit}")
     if tag == "":
         return None
 
@@ -51,8 +63,7 @@ def get_tag(commit, repo):
     return None
 
 def get_next_tag(repo):
-    command = f"(cd {repo} ; git tag -l 'v[0-9]*')"
-    tag = run_command(command)
+    tag = run_command(f"git -git-dir={git_dir(repo)} tag -l 'v[0-9]*'")
     if tag == "":
         return None
 
@@ -77,8 +88,7 @@ def get_diffstat(message):
     return run_command("diffstat -p1", our_input=message)
 
 def get_git_repo_url(dir):
-    command = f"(cd {dir}; git remote show origin -n)"
-    output = run_command(command)
+    output = run_command(f"git --git-dir={git_dir(dir)} remote show origin -n")
     for line in output.split('\n'):
         m = re.search(r"URL:\s+(\S+)", line)
         if m:
@@ -87,8 +97,10 @@ def get_git_repo_url(dir):
     return None
 
 def confirm_commit(commit, repo):
-    command = f"cd {repo} ; git rev-list HEAD --not --remotes $(git config --get branch.$(git symbolic-ref --short HEAD).remote)"
-    out = run_command(command)
+    gdir = git_dir(repo)
+    head_name = run_command(f"git --git-dir={gdir} symbolic-ref --short HEAD")
+    remote_name = run_command(f"git --git-dir={gdir} config --get branch.{head_name}.remote")
+    out = run_command(f"git --git-dir={gdir} rev-list HEAD --not --remotes {remote_name}")
     if out == "":
         return True
 
@@ -98,11 +110,10 @@ def confirm_commit(commit, repo):
     return True
 
 def canonicalize_commit(commit, repo):
-    return run_command(f"cd {repo} ; git show -s {commit}^{{}} --pretty=%H")
+    return run_command(f"git --git-dir={git_dir(repo)} show -s {commit}^{{}} --pretty=%H")
 
 def get_commit(commit, repo, force=False):
-    command = f"cd {repo}; git diff-tree --no-renames --pretty=email -r -p --cc --stat {commit}"
-    data = run_command(command)
+    data = run_command(f"git --git-dir={git_dir(repo)} diff-tree --no-renames --pretty=email -r -p --cc --stat {commit}")
     if data == "":
         return None
 
@@ -129,3 +140,5 @@ def safe_filename(name, keep_non_patch_brackets = True):
     name = re.sub(r'-+', '-', name)
     name = re.sub(r'\.+', '.', name)
     return name.strip('-. ')
+
+# vim: sw=4 ts=4 et si:
