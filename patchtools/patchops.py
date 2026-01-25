@@ -19,9 +19,8 @@ def key_version(tag):
         patch = int(m.group(2))
         if m.group(5):
             return (major, minor, patch, False, int(m.group(5)))
-        else:
-            mgroup4=int(m.group(4)) if m.group(4) else 0
-            return (major, minor, patch, True, mgroup4)
+        mgroup4=int(m.group(4)) if m.group(4) else 0
+        return (major, minor, patch, True, mgroup4)
 
     # We purposely ignore x.y.z tags since those are from -stable and
     # will never be used in a mainline tag.
@@ -30,7 +29,7 @@ def key_version(tag):
         major = int(m.group(1))
         minor = int(m.group(2))
         if m.group(4):
-                return (major, minor, 0, False, int(m.group(4)))
+            return (major, minor, 0, False, int(m.group(4)))
         return (major, minor, 0, True, "")
 
     return ()
@@ -91,9 +90,9 @@ def get_diffstat(message):
     """Return output of the diffstat command for our message."""
     return run_command("diffstat -p1", our_input=message)
 
-def get_git_repo_url(dir):
+def get_git_repo_url(a_dir):
     """Return the remote git repo URL."""
-    output = run_command(f"git --git-dir={git_dir(dir)} remote show origin -n")
+    output = run_command(f"git --git-dir={git_dir(a_dir)} remote show origin -n")
     for line in output.split('\n'):
         m = re.search(r"URL:\s+(\S+)", line)
         if m:

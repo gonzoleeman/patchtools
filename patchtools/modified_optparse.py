@@ -17,5 +17,3 @@ class ModifiedOptionParser(OptionParser):
     """Our own Option Parsing class, that does not call sys.exit()."""
     def error(self, msg):
         raise OptionParsingError(msg)
-
-

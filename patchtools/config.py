@@ -48,27 +48,27 @@ class Config:
 
     def read_configs(self):
         """Read the configuration files."""
-        config = configparser.ConfigParser()
-        files_read = config.read([ '/etc/patch.cfg',
-                                   '%s/etc/patch.cfg' % site.USER_BASE,
-                                   os.path.expanduser('~/.patch.cfg'),
-                                   './patch.cfg'])
+        parser_config = configparser.ConfigParser()
+        parser_config.read(['/etc/patch.cfg',
+                            '%s/etc/patch.cfg' % site.USER_BASE,
+                            os.path.expanduser('~/.patch.cfg'),
+                            './patch.cfg'])
         try:
-            self.repos = config.get('repositories', 'search').split()
-            repos = config.get('repositories', 'mainline').split()
+            self.repos = parser_config.get('repositories', 'search').split()
+            repos = parser_config.get('repositories', 'mainline').split()
             self.mainline_repos += repos
-        except (configparser.NoOptionError, configparser.NoSectionError) as e:
+        except (configparser.NoOptionError, configparser.NoSectionError):
             pass
 
         try:
-            self.name = config.get('contact', 'name')
-        except (configparser.NoOptionError, configparser.NoSectionError) as e:
+            self.name = parser_config.get('contact', 'name')
+        except (configparser.NoOptionError, configparser.NoSectionError):
             pass
 
         try:
-            self.emails = config.get('contact', 'email').split()
+            self.emails = parser_config.get('contact', 'email').split()
             self.email = self.emails[0]
-        except (configparser.NoOptionError, configparser.NoSectionError) as e:
+        except (configparser.NoOptionError, configparser.NoSectionError):
             pass
 
     def merge_mainline_repos(self):
@@ -82,10 +82,9 @@ class Config:
         """Return the canonicalized pathname."""
         if path[0] == '/':
             return os.path.realpath(path)
-        elif path == ".":
+        if path == ".":
             return os.getcwd()
-        else:
-            return path
+        return path
 
     def get_repos(self):
         """Return a canonicalized list of our repos."""

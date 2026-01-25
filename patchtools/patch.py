@@ -6,13 +6,9 @@ import email.parser
 import os
 import os.path
 import re
-import string
-import urllib.error
-import urllib.parse
-import urllib.request
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
-import patchtools.patchops as patchops
+from patchtools import patchops
 from patchtools.config import config
 from patchtools.patcherror import PatchError
 
@@ -63,10 +59,8 @@ class Patch:
                 return
 
         diffstat = patchops.get_diffstat(self.body())
-        text = ""
         switched = False
         need_sep = True
-        body = ""
 
         for line in self.header().splitlines():
             if re.match(r"^---$", line) and not switched:
@@ -120,9 +114,9 @@ class Patch:
     def add_signature(self, sob=False):
         """Add a signature tag to the Patch."""
         for line in self.message.get_payload().splitlines():
-            for email in config.emails:
-                if re.search(r"Acked-by.*%s" % email, line) or \
-                   re.search(r"Signed-off-by.*%s" % email, line):
+            for an_email in config.emails:
+                if re.search(r"Acked-by.*%s" % an_email, line) or \
+                   re.search(r"Signed-off-by.*%s" % an_email, line):
                     return
 
         text = ""
@@ -170,7 +164,7 @@ class Patch:
                 self.find_repo()
 
         if not self.repo:
-            f = self.find_repo()
+            self.find_repo()
 
         if self.repo in self.mainline_repo_list:
             self.in_mainline = True
@@ -244,7 +238,7 @@ class Patch:
     def parse_commitdiff_header(self):
         """Parse our commit's diff header, and fill in state from that."""
         url = self.message['X-Git-Url']
-        url = urllib.parse.unquote(url)
+        url = unquote(url)
 
         uc = urlparse(url)
         if not uc.scheme:
@@ -252,7 +246,7 @@ class Patch:
 
         args = dict([x.split('=', 1) for x in uc.query.split(';')])
         if 'p' in args:
-            args['p'] = urllib.parse.unquote(args['p'])
+            args['p'] = unquote(args['p'])
 
         if uc.netloc == 'git.kernel.org':
             self.repo = None
@@ -277,11 +271,14 @@ class Patch:
             if dirname:
                 filename = os.path.join(dirname, filename)
             return filename
-        else:
-            raise InvalidPatchError("Patch contains no Subject line")
+        raise InvalidPatchError("Patch contains no Subject line")
 
     def find_repo(self):
-        """Find the repo for our Patch, returning True on success."""
+        """
+        Find the repo for our Patch, returning True on success.
+
+        XXX: return value ignored.
+        """
         if self.message['Git-repo'] or self.in_mainline:
             return True
 
@@ -304,19 +301,6 @@ class Patch:
                     return True
 
         return False
-
-    def extract(self, paths):
-        """Extract the patch from our Patch email payload."""
-        text = ""
-        chunk = ""
-        for line in self.message.get_payload().splitlines():
-            if _patch_start_re.match(line):
-                text += chunk
-                chunk = ""
-            chunk += line + "\n"
-
-        text += chunk
-        return text
 
     def header(self):
         """Return our header as a string (newlines embedded)."""
@@ -423,12 +407,10 @@ class Patch:
 
     def handle_merge(self):
         """Handle a marge of of chunks."""
-        body = ""
         chunk = ""
         text = ""
 
         in_chunk = False
-        in_patch = False
         lines = self.body().splitlines()
         for line in lines:
             if _patch_start_re.match(line):
@@ -437,7 +419,6 @@ class Patch:
                     chunk = ""
                 else:
                     chunk += line + "\n"
-                in_patch = True
                 in_chunk = False
             elif re.match(r"^@@@", line):
                 if in_chunk:
