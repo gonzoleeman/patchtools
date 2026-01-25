@@ -6,9 +6,9 @@ From Jeff Mahoney, updated by Lee Duncan.
 __author__ = 'Jeff Mahoney'
 
 import sys
-from patchtools import PatchException
+from patchtools.patcherror import PatchError
 from patchtools.modified_optparse import ModifiedOptionParser, OptionParsingError
-from patchtools.patch import Patch, EmptyCommitException
+from patchtools.patch import Patch, EmptyCommitError
 from patchtools.version import __version__
 import os
 
@@ -24,7 +24,7 @@ def export_patch(commit, options, prefix, suffix):
     """Export a single commit/patch. Return 0 for success, else 1."""
     try:
         p = Patch(commit, debug=options.debug, force=options.force)
-    except PatchException as e:
+    except PatchError as e:
         print(e, file=sys.stderr)
         return 1
     if p.find_commit():
@@ -33,13 +33,13 @@ def export_patch(commit, options, prefix, suffix):
         if options.extract:
             try:
                 p.filter(options.extract)
-            except EmptyCommitException:
+            except EmptyCommitError:
                 print("Commit %s is now empty. Skipping." % commit, file=sys.stderr)
                 return 0
         if options.exclude:
             try:
                 p.filter(options.exclude, True)
-            except EmptyCommitException:
+            except EmptyCommitError:
                 print("Commit %s is now empty. Skipping." % commit, file=sys.stderr)
                 return 0
         p.add_signature(options.signed_off_by)

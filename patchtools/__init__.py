@@ -1,11 +1,11 @@
-"""patch class initialization"""
+"""The 'patch tools' package initialization."""
 
-import os
-from . import config
+from .exportpatch import export_patch
+from .fixpatch import fix_patchfile
 
-class PatchException(Exception):
-    pass
-
-config = config.Config()
+__all__ = [
+        'export_patch',
+        'fix_patchfile',
+        ]
 
 # vim: sw=4 ts=4 et si:

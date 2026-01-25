@@ -1,10 +1,10 @@
-# vim: sw=4 ts=4 et si:
 """
 Support package for doing SUSE Patch operations
 """
 
 import patchtools.patchops as patchops
-from patchtools import config, PatchException
+from patchtools.config import config
+from patchtools.patcherror import PatchError
 import re
 import os
 import os.path
@@ -15,16 +15,16 @@ import string
 
 _patch_start_re = re.compile(r"^(---|\*\*\*|Index:)[ \t][^ \t]|^diff -|^index [0-9a-f]{7}")
 
-class InvalidCommitIDException(PatchException):
+class InvalidCommitIDError(PatchError):
     pass
 
-class InvalidPatchException(PatchException):
+class InvalidPatchError(PatchError):
     pass
 
-class InvalidURLException(PatchException):
+class InvalidURLError(PatchError):
     pass
 
-class EmptyCommitException(PatchException):
+class EmptyCommitError(PatchError):
     pass
 
 class Patch:
@@ -44,7 +44,7 @@ class Patch:
             print("DEBUG: repo_list:", self.repo_list)
 
         if commit and (re.search(r"\^", commit) or re.search(r"HEAD", commit)):
-            raise InvalidCommitIDException("Commit IDs must be hashes, not relative references. HEAD and ^ are not allowed.")
+            raise InvalidCommitIDError("Commit IDs must be hashes, not relative references. HEAD and ^ are not allowed.")
 
     def add_diffstat(self):
         for line in self.message.get_payload().splitlines():
@@ -220,7 +220,7 @@ class Patch:
 
         uc = urlparse(url)
         if not uc.scheme:
-            raise InvalidURLException("X-Git-Url provided but is not a URL (%s)" % url)
+            raise InvalidURLError("X-Git-Url provided but is not a URL (%s)" % url)
 
         args = dict([x.split('=', 1) for x in uc.query.split(';')])
         if 'p' in args:
@@ -249,7 +249,7 @@ class Patch:
                 filename = os.path.join(dirname, filename)
             return filename
         else:
-            raise InvalidPatchException("Patch contains no Subject line")
+            raise InvalidPatchError("Patch contains no Subject line")
 
     def find_repo(self):
         if self.message['Git-repo'] or self.in_mainline:
@@ -473,10 +473,12 @@ class Patch:
         self.update_diffstat()
 
         if is_empty:
-            raise EmptyCommitException("commit is empty")
+            raise EmptyCommitError("commit is empty")
 
     def update_refs(self, refs):
         if not 'References' in self.message:
             self.message.add_header('References', refs)
         else:
             self.message['References'] = refs
+
+# vim: sw=4 ts=4 et si:
