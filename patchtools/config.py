@@ -62,7 +62,7 @@ class Config:
         """Read the configuration files."""
         parser_config = configparser.ConfigParser()
         parser_config.read(['/etc/patch.cfg',
-                            '%s/etc/patch.cfg' % site.USER_BASE,
+                            f'{site.USER_BASE}/etc/patch.cfg',
                             os.path.expanduser('~/.patch.cfg'),
                             './patch.cfg'])
         try:

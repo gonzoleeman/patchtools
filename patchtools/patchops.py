@@ -87,11 +87,9 @@ def get_next_tag(repo):
     if m:
         # Post-release commit with no rc, it'll be rc1
         if not m.group(3):
-            nexttag = 'v%s.%d-rc1' % (m.group(1), int(m.group(2)) + 1)
+            nexttag = f'v{m.group(1)}.{int(m.group(2)) + 1}-rc1'
         else:
-            nexttag = 'v%s.%d or v%s.%s-rc%d (next release)' % \
-                      (m.group(1), int(m.group(2)), m.group(1),
-                       m.group(2), int(m.group(4)) + 1)
+            nexttag = f'v{m.group(1)}.{int(m.group(2))} or v{m.group(1)}.{m.group(2)}-rc{int(m.group(4)) + 1} (next release)'
         return nexttag
 
     return None
