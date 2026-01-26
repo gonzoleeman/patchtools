@@ -39,6 +39,10 @@ class LocalCommitError(PatchError):
     """Local Commit error."""
 
 
+class NoRepositoryError(PatchError):
+    """No repository found."""
+
+
 def git_dir(pathname):
     """Return the git subdirectory string under the specified path."""
     if pathname:
@@ -46,14 +50,17 @@ def git_dir(pathname):
             gdir = Path(pathname) / '.git'
             if gdir.exists():
                 return str(gdir)
-    return None
+    raise NoRepositoryError('No git repository found.')
 
 def get_tag(commit, repo):
     """Get the git tag for the specified commit."""
-    tag = run_command(f'git --git-dir={git_dir(repo)} name-rev --refs=refs/tags/v* {commit}')
-    if tag == '':
+    try:
+        gdir = git_dir(repo)
+    except NoRepositoryError:
         return None
-
+    tag = run_command(f'git --git-dir={gdir} name-rev --refs=refs/tags/v* {commit}')
+    if not tag:
+        return None
     m = re.search(r'tags/([a-zA-Z0-9\.-]+)\~?\S*$', tag)
     if m:
         return m.group(1)
@@ -64,8 +71,12 @@ def get_tag(commit, repo):
 
 def get_next_tag(repo):
     """Get the next tag."""
-    tag = run_command(f"git -git-dir={git_dir(repo)} tag -l 'v[0-9]*'")
-    if tag == '':
+    try:
+        gdir = git_dir(repo)
+    except NoRepositoryError:
+        return None
+    tag = run_command(f"git -git-dir={gdir} tag -l 'v[0-9]*'")
+    if not tag:
         return None
 
     lines = tag.split()
@@ -75,7 +86,7 @@ def get_next_tag(repo):
     m = re.search(r'v([0-9]+)\.([0-9]+)(|-rc([0-9]+))$', lasttag)
     if m:
         # Post-release commit with no rc, it'll be rc1
-        if m.group(3) == '':
+        if not m.group(3):
             nexttag = 'v%s.%d-rc1' % (m.group(1), int(m.group(2)) + 1)
         else:
             nexttag = 'v%s.%d or v%s.%s-rc%d (next release)' % \
@@ -89,30 +100,32 @@ def get_diffstat(message):
     """Return output of the diffstat command for our message."""
     return run_command('diffstat -p1', our_input=message)
 
-def get_git_repo_url(a_dir):
+def get_git_repo_url(repo):
     """Return the remote git repo URL."""
-    output = run_command(f'git --git-dir={git_dir(a_dir)} remote show origin -n')
+    try:
+        gdir = git_dir(repo)
+    except NoRepositoryError:
+        return None
+    output = run_command(f'git --git-dir={gdir} remote show origin -n')
     for line in output.split('\n'):
         m = re.search(r'URL:\s+(\S+)', line)
         if m:
             return m.group(1)
-
     return None
 
 def confirm_commit(commit, repo):
     """Return whether or not the specified git is in the specified repo."""
-    gdir = git_dir(repo)
-    if not gdir:
+    try:
+        gdir = git_dir(repo)
+    except NoRepositoryError:
         return False
     head_name = run_command(f'git --git-dir={gdir} symbolic-ref --short HEAD')
     remote_name = run_command(f'git --git-dir={gdir} config --get branch.{head_name}.remote')
     out = run_command(f'git --git-dir={gdir} rev-list HEAD --not --remotes {remote_name}')
-    if out == '':
+    if not out:
         return True
     commits = out.split()
-    if commit in commits:
-        return False
-    return True
+    return commit not in commits
 
 def canonicalize_commit(commit, repo):
     """Return git's canonicalization of the specified commit."""

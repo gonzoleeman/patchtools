@@ -9,7 +9,8 @@ import re
 import site
 
 from patchtools.command import run_command
-from patchtools.patchops import git_dir
+from patchtools.patchops import (git_dir, NoRepositoryError)
+
 
 MAINLINE_URLS = [
         """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git""",
@@ -18,9 +19,14 @@ MAINLINE_URLS = [
         """https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux.git""",
         ]
 
+
 def get_git_repo_url(gitdir):
     """Return the git remote repo URL, if possible."""
-    output = run_command(f'git --git-dir={git_dir(gitdir)} remote show origin -n')
+    try:
+        gdir = git_dir(gitdir)
+    except NoRepositoryError:
+        return None
+    output = run_command(f'git --git-dir={gdir} remote show origin -n')
     for line in output.split('\n'):
         m = re.search(r'URL:\s+(\S+)', line)
         if m:
@@ -29,8 +35,13 @@ def get_git_repo_url(gitdir):
 
 def get_git_config(gitdir, var):
     """Return a configuraton variable for the specified repo."""
-    res = run_command(f'git --git-dir={git_dir(gitdir)} config {var}')
+    try:
+        gdir = git_dir(gitdir)
+    except NoRepositoryError:
+        return ''
+    res = run_command(f'git --git-dir={gdir} config {var}')
     return res.strip()
+
 
 # We deliberately don't catch exceptions when the option is mandatory
 class Config:
