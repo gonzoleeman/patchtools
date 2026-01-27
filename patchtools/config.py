@@ -9,7 +9,7 @@ import site
 from pathlib import Path
 
 from patchtools.command import run_command
-from patchtools.patchops import NoRepositoryError, git_dir, get_git_repo_url
+from patchtools.patchops import NoRepositoryError, get_git_repo_url, git_dir
 
 MAINLINE_URLS = [
         """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git""",

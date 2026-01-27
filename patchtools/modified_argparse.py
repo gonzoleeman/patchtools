@@ -4,7 +4,7 @@ Set up Option Parsing class so that we can
 stop the option parser from calling sys.exit()
 when it encounters an error."""
 
-from argparse import ArgumentParser, ArgumentError
+from argparse import ArgumentError, ArgumentParser
 
 
 class ArgumentParsingError(RuntimeError):
