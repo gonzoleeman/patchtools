@@ -26,9 +26,7 @@ def fix_patchfile(pathname, options):
             p.from_email(f.read())
 
         if options.name_only:
-            suffix=''
-            if options.suffix:
-                suffix = '.patch'
+            suffix = '.patch' if options.suffix else ''
             fn = p.get_pathname()
             print(f'{fn}{suffix}')
             return 0
@@ -47,6 +45,7 @@ def fix_patchfile(pathname, options):
 
         if not options.no_diffstat:
             p.add_diffstat()
+
         if not options.no_ack:
             p.add_signature(options.signed_off_by)
 
@@ -60,9 +59,7 @@ def fix_patchfile(pathname, options):
             print(p.message.as_string(unixfrom=False))
             return 0
 
-        suffix=''
-        if options.suffix:
-            suffix = '.patch'
+        suffix = '.patch' if options.suffix else ''
 
         if options.no_rename:
             fn = pathname

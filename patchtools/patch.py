@@ -11,7 +11,7 @@ from patchtools import patchops
 from patchtools.config import config
 from patchtools.patcherror import PatchError
 
-_patch_start_re = re.compile(r'^(---|\*\*\*|Index:)[ \t][^ \t]|^diff -|^index [0-9a-f]{7}')
+_PATCH_START_RE = re.compile(r'^(---|\*\*\*|Index:)[ \t][^ \t]|^diff -|^index [0-9a-f]{7}')
 
 
 class InvalidCommitIDError(PatchError):
@@ -65,17 +65,14 @@ class Patch:
             if re.match(r'^---$', line) and not switched:
                 need_sep = False
 
-        if need_sep:
-            diffstat = '---\n' + diffstat
-        else:
-            diffstat = '\n' + diffstat
+        diffstat = '---\n' + diffstat if need_sep else '\n' + diffstat
         diffstat += '\n'
 
         header = self.header().rstrip() + '\n'
         self.message.set_payload(header + diffstat + self.body())
 
-    def strip_diffstat(self):
-        """Remove the diffstat from a Patch."""
+    def update_diffstat(self):
+        """Remove and replace the diffstat in a Patch."""
         text = ''
         eat = ''
         for line in self.header().splitlines():
@@ -89,10 +86,6 @@ class Patch:
             eat = ''
 
         self.message.set_payload(text + '\n' + self.body())
-
-    def update_diffstat(self):
-        """Remove and replace the diffstat in a Patch."""
-        self.strip_diffstat()
         self.add_diffstat()
 
     def add_references(self, newrefs):
@@ -127,10 +120,7 @@ class Patch:
                 # If this is the first *-by tag, separate it
                 if not re.search(r'-by: ', last):
                     text += '\n'
-                if sob:
-                    tag = 'Signed-off-by'
-                else:
-                    tag = 'Acked-by'
+                tag = 'Signed-off-by' if sob else 'Acked-by'
                 text += f'{tag}: {config.name} <{config.email}>\n'
             text += line + '\n'
             last = line
@@ -206,7 +196,7 @@ class Patch:
         """
         Return a list of files from the diffstat.
 
-        XXX: Always returnsone file?
+        XXX: seems to always return a list of one file
         """
         diffstat = patchops.get_diffstat(self.body())
         f = []
@@ -305,7 +295,7 @@ class Patch:
         ret = ''
         for line in self.message.get_payload().splitlines():
             if not in_body:
-                if _patch_start_re.match(line):
+                if _PATCH_START_RE.match(line):
                     in_body = True
                     continue
                 ret += line + '\n'
@@ -319,7 +309,7 @@ class Patch:
         ret = ''
         for line in self.message.get_payload().splitlines():
             if not in_body:
-                if _patch_start_re.match(line):
+                if _PATCH_START_RE.match(line):
                     in_body = True
                     ret += line + '\n'
             else:
@@ -331,15 +321,11 @@ class Patch:
         """Class static function to check for filename in path."""
         if filename in paths:
             return True
-        for f in paths:
-            if f[-1:] == '/' and f in filename:
-                return True
-        return False
+        return any(f[-1:] == '/' and f in filename for f in paths)
 
     @staticmethod
     def shrink_chunk(chunk):
         """Class static function to shrink our patch body."""
-        n = -1
         text = ''
         start = -1
         end = -1
@@ -349,8 +335,7 @@ class Patch:
         count = 0
         lines = chunk.splitlines()
         debug = False
-        for line in lines:
-            n += 1
+        for n, line in enumerate(lines):
             if re.match(r'^-', line):
                 if start < 0:
                     start = n - 3 # count this line
@@ -379,7 +364,7 @@ class Patch:
                 count = 0
             else:
                 count += 1
-                if start >= 0 and end < 0 and (count > 3 or n +1 == len(lines)):
+                if start >= 0 > end and (count > 3 or n + 1 == len(lines)):
                     end = n # count this line
                     if end >= len(lines):
                         if debug:
@@ -409,7 +394,7 @@ class Patch:
         in_chunk = False
         lines = self.body().splitlines()
         for line in lines:
-            if _patch_start_re.match(line):
+            if _PATCH_START_RE.match(line):
                 if in_chunk:
                     text += Patch.shrink_chunk(chunk)
                     chunk = ''
@@ -423,12 +408,11 @@ class Patch:
                     text += chunk
                 chunk = ''
                 in_chunk = True
+            elif in_chunk:
+                if line[1] == ' ' or line[1] == '+':
+                    chunk += line[0:1] + line[2:] + '\n'
             else:
-                if in_chunk:
-                    if line[1] == ' ' or line[1] == '+':
-                        chunk += line[0:1] + line[2:] + '\n'
-                else:
-                    chunk += line + '\n'
+                chunk += line + '\n'
 
         if in_chunk:
             text += Patch.shrink_chunk(chunk)
@@ -446,7 +430,7 @@ class Patch:
         partial = False
 
         for line in self.body().splitlines():
-            if _patch_start_re.match(line):
+            if _PATCH_START_RE.match(line):
                 if filename:
                     if exclude ^ Patch.file_in_path(filename, files):
                         body += chunk + '\n'
@@ -465,18 +449,15 @@ class Patch:
 
         self.message.set_payload(self.header() + body)
 
-        if body == '':
+        if not body:
             is_empty = True
 
         if partial:
             commit = self.message['Git-commit']
-            if not '(partial)' in commit:
+            if '(partial)' not in commit:
                 self.message.replace_header('Git-commit',
                                             f'{commit} (partial)')
-            if exclude:
-                filtered_header = ' !'.join([''] + files)[1:]
-            else:
-                filtered_header = ' '.join(files)
+            filtered_header = ' !'.join(['', *files])[1:] if exclude else ' '.join(files)
 
             if 'Patch-filtered' in self.message:
                 h = self.message['Patch-filtered']
@@ -491,7 +472,7 @@ class Patch:
 
     def update_refs(self, refs):
         """Update the References tag in our message."""
-        if not 'References' in self.message:
+        if 'References' not in self.message:
             self.message.add_header('References', refs)
         else:
             self.message['References'] = refs

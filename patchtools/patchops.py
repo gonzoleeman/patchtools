@@ -18,7 +18,7 @@ def key_version(tag):
         patch = int(m.group(2))
         if m.group(5):
             return (major, minor, patch, False, int(m.group(5)))
-        mgroup4=int(m.group(4)) if m.group(4) else 0
+        mgroup4 = int(m.group(4)) if m.group(4) else 0
         return (major, minor, patch, True, mgroup4)
 
     # We purposely ignore x.y.z tags since those are from -stable and
@@ -60,6 +60,7 @@ def get_tag(commit, repo):
     tag = run_command(f'git --git-dir={gdir} name-rev --refs=refs/tags/v* {commit}')
     if not tag:
         return None
+
     m = re.search(r'tags/([a-zA-Z0-9\.-]+)\~?\S*$', tag)
     if m:
         return m.group(1)
@@ -126,11 +127,19 @@ def confirm_commit(commit, repo):
 
 def canonicalize_commit(commit, repo):
     """Return git's canonicalization of the specified commit."""
-    return run_command(f'git --git-dir={git_dir(repo)} show -s {commit}^{{}} --pretty=%H')
+    try:
+        gdir = git_dir(repo)
+    except NoRepositoryError:
+        return False
+    return run_command(f'git --git-dir={gdir} show -s {commit}^{{}} --pretty=%H')
 
 def get_commit(commit, repo, force=False):
     """Return git's idea of the specified commit."""
-    data = run_command(f'git --git-dir={git_dir(repo)} diff-tree --no-renames --pretty=email -r -p --cc --stat {commit}')
+    try:
+        gdir = git_dir(repo)
+    except NoRepositoryError:
+        return False
+    data = run_command(f'git --git-dir={gdir} diff-tree --no-renames --pretty=email -r -p --cc --stat {commit}')
     if not data:
         return None
     if not force and not confirm_commit(commit, repo):

@@ -5,12 +5,11 @@ Represent Git Repos
 import configparser
 import os
 import pwd
-import re
 import site
 from pathlib import Path
 
 from patchtools.command import run_command
-from patchtools.patchops import NoRepositoryError, git_dir
+from patchtools.patchops import NoRepositoryError, git_dir, get_git_repo_url
 
 MAINLINE_URLS = [
         """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git""",
@@ -19,19 +18,6 @@ MAINLINE_URLS = [
         """https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux.git""",
         ]
 
-
-def get_git_repo_url(gitdir):
-    """Return the git remote repo URL, if possible."""
-    try:
-        gdir = git_dir(gitdir)
-    except NoRepositoryError:
-        return None
-    output = run_command(f'git --git-dir={gdir} remote show origin -n')
-    for line in output.split('\n'):
-        m = re.search(r'URL:\s+(\S+)', line)
-        if m:
-            return m.group(1)
-    return None
 
 def get_git_config(gitdir, var):
     """Return a configuraton variable for the specified repo."""

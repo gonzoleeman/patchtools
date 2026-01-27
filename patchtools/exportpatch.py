@@ -15,11 +15,17 @@ from patchtools.patcherror import PatchError
 from patchtools.version import __version__
 
 # default: do not write out a patch file
-WRITE=False
+WRITE = False
 
 # default directory where patch gets written
-DIR='.'
+DIR = '.'
 
+# starting patch number maximum value
+MAX_START_VAL = 9999
+
+# default and maximum width for the patch number
+DEF_PATCH_NUM_WIDTH = 4
+MAX_PATCH_NUM_WIDTH = 5
 
 def export_patch(commit, options, prefix, suffix):
     """Export a single commit/patch. Return 0 for success, else 1."""
@@ -81,7 +87,7 @@ def main():
                       default=False)
     parser.add_option('--num-width', type='int', action='store',
                       help='when used with -n, set the width of the order numbers',
-                      default=4)
+                      default=DEF_PATCH_NUM_WIDTH)
     parser.add_option('-N', '--first-number', type='int', action='store',
                       help='Start numbering the patches with number instead of 1',
                       default=1)
@@ -116,20 +122,18 @@ def main():
         print('Must supply patch hash(es)', file=sys.stderr)
         return 1
 
-    if options.first_number + len(args) > 9999 or options.first_number < 0:
-        print('The starting number + commits needs to be in the range 0 - 9999',
+    if options.first_number + len(args) > MAX_START_VAL or options.first_number < 0:
+        print(f'The starting number + commits needs to be in the range 0 - {MAX_START_VAL}',
               file=sys.stderr)
         return 1
 
-    suffix = ''
-    if options.suffix:
-        suffix = '.patch'
+    suffix = '.patch' if options.suffix else ''
 
-    num_width = 4
+    num_width = DEF_PATCH_NUM_WIDTH
     if options.num_width:
-        _n = int(options.num_width)
-        if _n > 0 and _n < 5:
-            num_width = _n
+        n_ = int(options.num_width)
+        if 0 < n_ < MAX_PATCH_NUM_WIDTH:
+            num_width = n_
 
     n = options.first_number
     for commit in args:
@@ -138,7 +142,6 @@ def main():
         res = export_patch(commit, options, prefix, suffix)
         if res:
             return res
-
         n += 1
 
     return 0
