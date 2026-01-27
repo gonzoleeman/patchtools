@@ -7,10 +7,10 @@ import os
 import pwd
 import re
 import site
+from pathlib import Path
 
 from patchtools.command import run_command
-from patchtools.patchops import (git_dir, NoRepositoryError)
-
+from patchtools.patchops import NoRepositoryError, git_dir
 
 MAINLINE_URLS = [
         """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git""",
@@ -48,10 +48,10 @@ class Config:
     """Configuration class."""
     def __init__(self):
         """Initialize Config class with some defaults."""
-        self.repos = [ os.getcwd() ]
+        self.repos = [ Path.cwd() ]
         self.mainline_repos = MAINLINE_URLS
         self.merge_mainline_repos()
-        self.email = get_git_config(os.getcwd(), 'user.email')
+        self.email = get_git_config(Path.cwd(), 'user.email')
         self.emails = [self.email]
         self.name = pwd.getpwuid(os.getuid()).pw_gecos.split(',')[0].strip()
 
@@ -63,7 +63,7 @@ class Config:
         parser_config = configparser.ConfigParser()
         parser_config.read(['/etc/patch.cfg',
                             f'{site.USER_BASE}/etc/patch.cfg',
-                            os.path.expanduser('~/.patch.cfg'),
+                            Path('~/.patch.cfg').expanduser(),
                             './patch.cfg'])
         try:
             self.repos = parser_config.get('repositories', 'search').split()
@@ -93,9 +93,9 @@ class Config:
     def _canonicalize(self, path):
         """Return the canonicalized pathname."""
         if path[0] == '/':
-            return os.path.realpath(path)
+            return str(Path(path).resolve())
         if path == '.':
-            return os.getcwd()
+            return str(Path.cwd())
         return path
 
     def get_repos(self):

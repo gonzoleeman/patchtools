@@ -2,9 +2,8 @@
 Support package for doing SUSE Patch operations
 """
 
-from pathlib import Path
 import re
-from sys import stderr
+from pathlib import Path
 
 from patchtools.command import run_command
 from patchtools.patcherror import PatchError

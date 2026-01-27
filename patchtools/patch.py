@@ -3,10 +3,9 @@ Support package for doing SUSE Patch operations
 """
 
 import email.parser
-import os
-import os.path
 import re
-from urllib.parse import urlparse, unquote
+from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 from patchtools import patchops
 from patchtools.config import config
@@ -200,9 +199,8 @@ class Patch:
 
     def from_file(self, pathname):
         """Set up our Patch instance from an email file."""
-        f = open(pathname, 'r', encoding='utf-8')
-        self.from_email(f.read())
-        f.close()
+        with Path(pathname).open('r', encoding='utf-8') as f:
+            self.from_email(f.read())
 
     def files(self):
         """
@@ -268,7 +266,7 @@ class Patch:
                 filename = filename[0:truncate_chars]
             filename = prefix + filename + suffix
             if dirname:
-                filename = os.path.join(dirname, filename)
+                filename = str(Path(dirname) / filename)
             return filename
         raise InvalidPatchError('Patch contains no Subject line')
 

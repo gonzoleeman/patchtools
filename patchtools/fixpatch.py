@@ -8,8 +8,8 @@ subject found in the patch itself.
 __author__ = 'Jeff Mahoney'
 
 
-import os
 import sys
+from pathlib import Path
 
 from patchtools.modified_optparse import (ModifiedOptionParser,
                                           OptionParsingError)
@@ -22,8 +22,8 @@ def fix_patchfile(pathname, options):
     """Fix one patchfile. Return 0 for success."""
     try:
         p = Patch()
-        f = open(pathname, 'r', encoding='utf-8')
-        p.from_email(f.read())
+        with Path(pathname).open('r', encoding='utf-8') as f:
+            p.from_email(f.read())
 
         if options.name_only:
             suffix=''
@@ -68,19 +68,18 @@ def fix_patchfile(pathname, options):
             fn = pathname
         else:
             fn = f'{p.get_pathname()}{suffix}'
-            dirname = os.path.dirname(pathname)
+            dirname = Path(pathname).parent
             if dirname:
                 fn = f'{dirname}/{fn}'
-            if fn != pathname and os.path.exists(fn) and not options.force:
+            if fn != pathname and Path(fn).exists() and not options.force:
                 print(f'{fn} already exists.', file=sys.stderr)
                 return 1
 
-        f = open(fn, 'w', encoding='utf-8')
         print(fn)
-        print(p.message.as_string(unixfrom=False), file=f)
-        f.close()
+        with Path(fn).open('w', encoding='utf-8') as f:
+            print(p.message.as_string(unixfrom=False), file=f)
         if fn != pathname:
-            os.unlink(pathname)
+            Path(pathname).unlink()
 
     except (FileNotFoundError, PermissionError, PatchError) as e:
         print(e, file=sys.stderr)
