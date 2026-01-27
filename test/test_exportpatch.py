@@ -381,7 +381,7 @@ class TestExportpatchErrorCases(unittest.TestCase):
         """Test exportpatch with no commit supplied."""
         (res, _, err_out) = call_mut(mut, MUT, [])
         self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('Must supply' in err_out, f'err_out={err_out}')
+        self.assertTrue('arguments are required' in err_out, f'err_out={err_out}')
 
     def test_err_invalid_commit_supplied(self):
         """Test exportpatch with no commit supplied."""
@@ -399,49 +399,49 @@ class TestExportpatchErrorCases(unittest.TestCase):
         """Test exportpatch with bogus argument(s)."""
         (res, _, err_out) = call_mut(mut, MUT, ['-z', COMMIT_BOGUS])
         self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('no such option' in err_out, f'err_out={err_out}')
+        self.assertTrue('unrecognized arguments' in err_out, f'err_out={err_out}')
 
     def test_err_bogus_args_long(self):
         """Test exportpatch with bogus argument(s)."""
         (res, _, err_out) = call_mut(mut, MUT, ['--zebra', COMMIT_BOGUS])
         self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('no such option' in err_out, f'err_out={err_out}')
+        self.assertTrue('unrecognized arguments' in err_out, f'err_out={err_out}')
 
     def test_err_num_width_no_commit(self):
         """Test exportpatch with num-width argument with no argument, with no commit."""
         (res, _, err_out) = call_mut(mut, MUT, ['--num-width'])
         self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('requires 1 argument' in err_out, f'err_out={err_out}')
+        self.assertTrue('expected one argument' in err_out, f'err_out={err_out}')
 
     def test_err_num_width_bogus_commit(self):
         """Test exportpatch with num-width argument with bogus value, with a commit."""
         (res, _, err_out) = call_mut(mut, MUT, ['--num-width', 'XX', COMMIT_BOGUS])
         self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('invalid integer value' in err_out, f'err_out={err_out}')
+        self.assertTrue('invalid int value' in err_out, f'err_out={err_out}')
 
     def test_err_num_width_valid_commit(self):
         """Test exportpatch with num-width argument with bogus value, with a valid commit."""
         (res, _, err_out) = call_mut(mut, MUT, ['--num-width', 'XX', COMMIT_1F])
         self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('invalid integer value' in err_out, f'err_out={err_out}')
+        self.assertTrue('invalid int value' in err_out, f'err_out={err_out}')
 
     def test_err_first_number_no_commit(self):
         """Test exportpatch with first-number argument with no argument, with no commit."""
         (res, _, err_out) = call_mut(mut, MUT, ['-N'])
         self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('requires 1 argument' in err_out, f'err_out={err_out}')
+        self.assertTrue('expected one argument' in err_out, f'err_out={err_out}')
 
     def test_err_first_number_bogus_commit(self):
         """Test exportpatch with first-number argument with bogus value, with a bogus commit."""
         (res, _, err_out) = call_mut(mut, MUT, ['-N', 'XX', COMMIT_BOGUS])
         self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('invalid integer value' in err_out, f'err_out={err_out}')
+        self.assertTrue('invalid int value' in err_out, f'err_out={err_out}')
 
     def test_err_first_number_valid(self):
         """Test exportpatch with first-number argument with bogus value, with a valid commit."""
         (res, _, err_out) = call_mut(mut, MUT, ['-N', 'XX', COMMIT_1F])
         self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('invalid integer value' in err_out, f'err_out={err_out}')
+        self.assertTrue('invalid int value' in err_out, f'err_out={err_out}')
 
     def test_err_first_number_out_of_range_too_large(self):
         """Test exportpatch with first-number argument with out of range."""
@@ -459,26 +459,26 @@ class TestExportpatchErrorCases(unittest.TestCase):
         """Test exportpatch with reference with no argument."""
         (res, _, err_out) = call_mut(mut, MUT, ['-F'])
         self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('requires 1 argument' in err_out, f'err_out={err_out}')
+        self.assertTrue('expected one argument' in err_out, f'err_out={err_out}')
 
     def test_err_export_to_dir_no_value(self):
         """Test exportpatch write to a dir with no argument and no commit."""
         (res, _, err_out) = call_mut(mut, MUT, ['-d'])
         self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('requires 1 argument' in err_out, f'err_out={err_out}')
+        self.assertTrue('expected one argument' in err_out, f'err_out={err_out}')
 
     def test_err_export_to_dir_no_commit(self):
         """Test exportpatch write to a dir with no commit."""
         with tempfile.TemporaryDirectory() as tmpdir:
             (res, _, err_out) = call_mut(mut, MUT, ['-d', tmpdir])
             self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
-            self.assertTrue('Must supply' in err_out, f'err_out={err_out}')
+            self.assertTrue('arguments are required' in err_out, f'err_out={err_out}')
 
     def test_err_export_to_dir_does_not_exist(self):
         """Test exportpatch write to a dir that does not exist."""
         with tempfile.TemporaryDirectory() as tmpdir:
             fake_dir = Path(tmpdir) / 'some_bogus_dir'
-            (res, _, err_out) = call_mut(mut, MUT, ['-w', '-d', fake_dir, COMMIT_1F])
+            (res, _, err_out) = call_mut(mut, MUT, ['-w', '-d', str(fake_dir), COMMIT_1F])
             self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
             self.assertTrue('No such file or directory' in err_out, f'err_out={err_out}')
 
@@ -487,6 +487,6 @@ class TestExportpatchErrorCases(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             new_dir = Path(tmpdir) / 'some_subdir'
             new_dir.mkdir(mode=0o511)
-            (res, _, err_out) = call_mut(mut, MUT, ['-w', '-d', new_dir, COMMIT_1F])
+            (res, _, err_out) = call_mut(mut, MUT, ['-w', '-d', str(new_dir), COMMIT_1F])
             self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
             self.assertTrue('Permission denied' in err_out, f'err_out={err_out}')

@@ -24,6 +24,9 @@ SUBJECT_TESTING_FILE = 'subject-testing-file'
 SUBJECT_AND_REF_TESTING_FILE = 'subject-and-ref-testing-file'
 SUBJECT_AND_SIGNED_OFF_BY = 'subject-and-signed-off-by'
 
+# not a real file
+FILENAME_BOGUS = '/some/file'
+
 mut = import_mut(MUT)
 
 
@@ -353,17 +356,17 @@ class TestFixpatchErrorCases(unittest.TestCase):
 
     def test_err_bogus_option_long(self):
         """Test fixpatch with no patch filename supplied."""
-        (res, _, err_out) = call_mut(mut, MUT, ['--zzz'])
+        (res, _, err_out) = call_mut(mut, MUT, ['--zzz', FILENAME_BOGUS])
         self.assertEqual(res, 1,
                          f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('no such option' in err_out, f'err_out={err_out}')
+        self.assertTrue('unrecognized arguments' in err_out, f'err_out={err_out}')
 
     def test_err_no_patchname_supplied(self):
         """Test fixpatch with no patch filename supplied."""
         (res, _, err_out) = call_mut(mut, MUT, [])
         self.assertEqual(res, 1,
                          f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('Must supply' in err_out, f'err_out={err_out}')
+        self.assertTrue('arguments are required' in err_out, f'err_out={err_out}')
 
     def test_err_bogus_filename_supplied(self):
         """Test fixpatch with a bogus patch filename supplied."""

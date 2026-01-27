@@ -1,0 +1,19 @@
+"""Our own 'argparse' class, then does not call sys.exit().
+
+Set up Option Parsing class so that we can
+stop the option parser from calling sys.exit()
+when it encounters an error."""
+
+from argparse import ArgumentParser, ArgumentError
+
+
+class ArgumentParsingError(RuntimeError):
+    """An exception raised when parser.error() is called."""
+    def __init__(self, msg):
+        self.msg = msg
+
+
+class ModifiedArgumentParser(ArgumentParser):
+    """Our own Argument Parsing class, that does not call sys.exit()."""
+    def error(self, message):
+        raise ArgumentParsingError(message)
