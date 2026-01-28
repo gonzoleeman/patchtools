@@ -8,7 +8,7 @@ __author__ = 'Jeff Mahoney'
 import sys
 from pathlib import Path
 
-from patchtools.modified_argparse import (ArgumentError, ArgumentParsingError,
+from patchtools.modified_argparse import (ArgumentParsingError,
                                           ModifiedArgumentParser)
 from patchtools.patch import EmptyCommitError, Patch
 from patchtools.patcherror import PatchError
@@ -26,6 +26,7 @@ MAX_START_VAL = 9999
 # default and maximum width for the patch number
 DEF_PATCH_NUM_WIDTH = 4
 MAX_PATCH_NUM_WIDTH = 5
+
 
 def export_patch(commit, options, prefix, suffix):
     """Export a single commit/patch. Return 0 for success, else 1."""
@@ -70,6 +71,7 @@ def export_patch(commit, options, prefix, suffix):
     print(f'Could not locate commit "{commit}"; Skipping.', file=sys.stderr)
     return 1
 
+
 def main():
     """The main entry point for this module. Return 0 for success."""
     parser = ModifiedArgumentParser(
@@ -102,14 +104,14 @@ def main():
                         help='add reference tag. This option can be specified multiple times.',
                         default=None)
     parser.add_argument('-x', '--extract', action='append',
-                        help='extract specific parts of the commit; ' + \
-                             'using a path that ends with / includes all files under that hierarchy. ' +
-                             'This option can be specified multiple times.',
+                        help=('extract specific parts of the commit; '
+                              'using a path that ends with / includes all files under that hierarchy. '
+                              'This option can be specified multiple times.'),
                         default=None)
     parser.add_argument('-X', '--exclude', action='append',
-                        help='exclude specific parts of the commit; ' + \
-                             'using a path that ends with / excludes all files under that hierarchy. ' +
-                             'This option can be specified multiple times.',
+                        help=('exclude specific parts of the commit; '
+                              'using a path that ends with / excludes all files under that hierarchy. '
+                              'This option can be specified multiple times.'),
                         default=None)
     parser.add_argument('-S', '--signed-off-by', action='store_true',
                         help='Use Signed-off-by instead of Acked-by',
@@ -120,7 +122,7 @@ def main():
     try:
         args = parser.parse_args()
 
-    except (ArgumentError, ArgumentParsingError) as e:
+    except ArgumentParsingError as e:
         print(f'Error: {e}', file=sys.stderr)
         return 1
 

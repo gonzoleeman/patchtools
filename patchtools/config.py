@@ -34,7 +34,7 @@ class Config:
     """Configuration class."""
     def __init__(self):
         """Initialize Config class with some defaults."""
-        self.repos = [ Path.cwd() ]
+        self.repos = [Path.cwd()]
         self.mainline_repos = MAINLINE_URLS
         self.merge_mainline_repos()
         self.email = get_git_config(Path.cwd(), 'user.email')

@@ -48,8 +48,9 @@ class Patch:
         if self.debug:
             print('DEBUG: repo_list:', self.repo_list)
 
-        if commit and (re.search(r'\^', commit) or re.search(r'HEAD', commit)):
-            raise InvalidCommitIDError('Commit IDs must be hashes, not relative references. HEAD and ^ are not allowed.')
+        if commit and (re.search(r'\^', commit) or r'HEAD' in commit):
+            raise InvalidCommitIDError('Commit IDs must be hashes, not relative references. '
+                                       'HEAD and ^ are not allowed.')
 
     def add_diffstat(self):
         """Add a diffstat to the Patch."""
@@ -118,7 +119,7 @@ class Patch:
                 text = text.rstrip() + '\n'
 
                 # If this is the first *-by tag, separate it
-                if not re.search(r'-by: ', last):
+                if r'-by: ' not in last:
                     text += '\n'
                 tag = 'Signed-off-by' if sob else 'Acked-by'
                 text += f'{tag}: {config.name} <{config.email}>\n'
@@ -338,7 +339,7 @@ class Patch:
         for n, line in enumerate(lines):
             if re.match(r'^-', line):
                 if start < 0:
-                    start = n - 3 # count this line
+                    start = n - 3  # count this line
                     if start < 0:
                         if debug:
                             print(f'resetting start(1) ({start}, {n})')
@@ -351,7 +352,7 @@ class Patch:
                 count = 0
             elif re.match(r'^\+', line):
                 if start < 0:
-                    start = n - 3 # count this line
+                    start = n - 3  # count this line
                     if start < 0:
                         if debug:
                             print(f'resetting start(2) ({start}, {n})')
@@ -365,7 +366,7 @@ class Patch:
             else:
                 count += 1
                 if start >= 0 > end and (count > 3 or n + 1 == len(lines)):
-                    end = n # count this line
+                    end = n  # count this line
                     if end >= len(lines):
                         if debug:
                             print('Truncating end')

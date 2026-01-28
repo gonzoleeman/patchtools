@@ -44,12 +44,12 @@ class NoRepositoryError(PatchError):
 
 def git_dir(pathname):
     """Return the git subdirectory string under the specified path."""
-    if pathname:
-        if Path(pathname).exists():
-            gdir = Path(pathname) / '.git'
-            if gdir.exists():
-                return str(gdir)
+    if pathname and Path(pathname).exists():
+        gdir = Path(pathname) / '.git'
+        if gdir.exists():
+            return str(gdir)
     raise NoRepositoryError('No git repository found.')
+
 
 def get_tag(commit, repo):
     """Get the git tag for the specified commit."""
@@ -68,6 +68,7 @@ def get_tag(commit, repo):
     if m:
         return m.group(1)
     return None
+
 
 def get_next_tag(repo):
     """Get the next tag."""
@@ -94,9 +95,11 @@ def get_next_tag(repo):
 
     return None
 
+
 def get_diffstat(message):
     """Return output of the diffstat command for our message."""
     return run_command('diffstat -p1', our_input=message)
+
 
 def get_git_repo_url(repo):
     """Return the remote git repo URL."""
@@ -110,6 +113,7 @@ def get_git_repo_url(repo):
         if m:
             return m.group(1)
     return None
+
 
 def confirm_commit(commit, repo):
     """Return whether or not the specified git is in the specified repo."""
@@ -125,6 +129,7 @@ def confirm_commit(commit, repo):
     commits = out.split()
     return commit not in commits
 
+
 def canonicalize_commit(commit, repo):
     """Return git's canonicalization of the specified commit."""
     try:
@@ -132,6 +137,7 @@ def canonicalize_commit(commit, repo):
     except NoRepositoryError:
         return False
     return run_command(f'git --git-dir={gdir} show -s {commit}^{{}} --pretty=%H')
+
 
 def get_commit(commit, repo, force=False):
     """Return git's idea of the specified commit."""
@@ -146,7 +152,8 @@ def get_commit(commit, repo, force=False):
         raise LocalCommitError('Commit is not in the remote repository. Use -f to override.')
     return data
 
-def safe_filename(name, keep_non_patch_brackets = True):
+
+def safe_filename(name, keep_non_patch_brackets=True):
     """Return 'safe' version of the patch filename."""
     if not name:
         return name

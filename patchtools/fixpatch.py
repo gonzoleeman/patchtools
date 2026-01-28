@@ -11,7 +11,7 @@ __author__ = 'Jeff Mahoney'
 import sys
 from pathlib import Path
 
-from patchtools.modified_argparse import (ArgumentError, ArgumentParsingError,
+from patchtools.modified_argparse import (ArgumentParsingError,
                                           ModifiedArgumentParser)
 from patchtools.patch import Patch
 from patchtools.patcherror import PatchError
@@ -108,14 +108,14 @@ def main():
     parser.add_argument('-R', '--name-only', action='store_true', default=False,
                         help='Print the new filename for the patch but do not change anything')
     parser.add_argument('-F', '--reference', action='append', default=None,
-                        help='add reference tag, if not in header-only mode. ' +
-                             'Can be supplied multiple times.')
+                        help=('add reference tag, if not in header-only mode. '
+                              'Can be supplied multiple times.'))
     parser.add_argument('-S', '--signed-off-by', action='store_true', default=False,
                         help='Use Signed-off-by instead of Acked-by')
     parser.add_argument('-M', '--mainline', action='append', default=None,
-                        help='Add Patch-mainline tag. ' +
-                             'Replaces existing tag if any. ' +
-                             'Can be supplied multiple times.')
+                        help=('Add Patch-mainline tag. '
+                              'Replaces existing tag if any. '
+                              'Can be supplied multiple times.'))
     parser.add_argument('-s', '--suffix', action='store_true',
                         help='When generating the patch name, append ".patch"',
                         default=False)
@@ -125,7 +125,7 @@ def main():
     try:
         args = parser.parse_args()
 
-    except (ArgumentError, ArgumentParsingError) as e:
+    except ArgumentParsingError as e:
         print(f'Error: {e}', file=sys.stderr)
         return 1
 
