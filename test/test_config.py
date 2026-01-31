@@ -7,7 +7,7 @@ by calling the exportpatch or fixpatch as needed.
 import filecmp
 import tempfile
 import unittest
-from contextlib import chdir     # requires python >= 3.11
+from contextlib import chdir  # requires python >= 3.11
 
 from .util import DATA_PATH, call_mut, create_config_file, get_patch_path, import_mut
 
@@ -22,6 +22,7 @@ COMMIT_1F = '8db816c6f176321e42254badd5c1a8df8bfcfdb4'
 PATCH_1F = 'scsi-st-Tighten-the-page-format-heuristics-with-MODE-SELECT'
 
 exportpatch = import_mut(EXPORTPATCH)
+
 
 class TestConfigModuleFunctionality(unittest.TestCase):
     """Test functionality in the config module."""
