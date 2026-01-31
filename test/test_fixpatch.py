@@ -8,7 +8,7 @@ import filecmp
 import shutil
 import tempfile
 import unittest
-from contextlib import chdir    # requires python >= 3.11
+from contextlib import chdir  # requires python >= 3.11
 from pathlib import Path
 
 from .util import DATA_PATH, call_mut, compare_text_and_file, create_config_file, get_patch_path, import_mut

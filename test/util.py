@@ -21,7 +21,7 @@ PATCH_CFG_TEMPLATE = [
     ]
 
 
-class NoLinuxRepoDir(RuntimeError):
+class NoLinuxRepoDirError(RuntimeError):
     """No Linux git repository error."""
     def __init__(self, msg):
         self.msg = msg
@@ -31,9 +31,9 @@ def get_git_repo_dir():
     """Get a valid Linux git repo path from env(LINUX_GIT)."""
     linux_git_dir = os.getenv('LINUX_GIT')
     if not linux_git_dir:
-        raise NoLinuxRepoDir('No LINUX_GIT environment variable found')
+        raise NoLinuxRepoDirError('No LINUX_GIT environment variable found')
     if not Path(linux_git_dir).exists():
-        raise NoLinuxRepoDir(f'LINUX_GIT directory not found: {linux_git_dir}')
+        raise NoLinuxRepoDirError(f'LINUX_GIT directory not found: {linux_git_dir}')
     return linux_git_dir
 
 
