@@ -2,7 +2,6 @@
 Represent Git Repos
 """
 
-import sys
 
 import configparser
 import os
