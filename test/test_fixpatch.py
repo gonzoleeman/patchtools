@@ -354,7 +354,23 @@ class TestFixpatchNormalFunctionalityB(unittest.TestCase):
                               f'{DATA_PATH}/{FIX_FILE_1F}.all_fixed.dummy_mainline_double')
             self.assertEqual(res, True, 'patch file differs from known good')
 
-    def test_fixpatch_signed_off_by_alredy_there(self):
+    def test_fixpatch_dummy_mainline_single_replace(self):
+        """Test fixpatch rename, with a single dummy mainline, replacing existing tag."""
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
+            patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
+            fixpatch_dest = f'{tmpdir}/temp'
+            shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.has_mainline.needs_fixing', fixpatch_dest)
+            (res, pname, err_out) = call_mut(mut,
+                                             MUT, ['-M', 'v9.9.9.9', fixpatch_dest])
+            self.assertEqual(res, 0, f'calling {MUT} returned faliure: {err_out}')
+            self.assertEqual(pname.strip(), patch_path_expected.as_posix(),
+                             'patch name wrong')
+            res = filecmp.cmp(patch_path_expected,
+                              f'{DATA_PATH}/{FIX_FILE_1F}.all_fixed.dummy_mainline_single')
+            self.assertEqual(res, True, 'patch file differs from known good')
+
+    def test_fixpatch_signed_off_by_already_there(self):
         """Test fixpatch rename, mostly empty patch, where signed-off-by already there."""
         with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
             create_config_file()
