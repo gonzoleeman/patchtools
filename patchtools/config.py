@@ -96,12 +96,4 @@ class Config:
         """Return the first mainline repo."""
         return self._canonicalize(self.mainline_repos[0])
 
-
-# set up a global config instance
-#
-# XXX this means the configuration is read when this file is imported,
-# but we may wish to delay that, instead waiting until we actually need it?
-#
-config = Config()
-
 # vim: sw=4 ts=4 et si:

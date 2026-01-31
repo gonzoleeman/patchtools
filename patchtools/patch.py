@@ -8,7 +8,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlparse
 
 from patchtools import patchops
-from patchtools.config import config
+from patchtools.config import Config
 from patchtools.patcherror import PatchError
 
 _PATCH_START_RE = re.compile(r'^(---|\*\*\*|Index:)[ \t][^ \t]|^diff -|^index [0-9a-f]{7}')
@@ -40,8 +40,9 @@ class Patch:
         self.repo = None
         self.repourl = None
         self.message = None
-        self.repo_list = config.get_repos()
-        self.mainline_repo_list = config.get_mainline_repos()
+        self.config = Config()
+        self.repo_list = self.config.get_repos()
+        self.mainline_repo_list = self.config.get_mainline_repos()
         self.in_mainline = False
         if self.debug:
             print('DEBUG: repo_list:', self.repo_list)
@@ -105,7 +106,7 @@ class Patch:
     def add_signature(self, sob=False):
         """Add a signature tag to the Patch."""
         for line in self.message.get_payload().splitlines():
-            for an_email in config.emails:
+            for an_email in self.config.emails:
                 if re.search(rf'Acked-by.*{an_email}', line) or \
                    re.search(rf'Signed-off-by.*{an_email}', line):
                     return
@@ -120,7 +121,7 @@ class Patch:
                 if r'-by: ' not in last:
                     text += '\n'
                 tag = 'Signed-off-by' if sob else 'Acked-by'
-                text += f'{tag}: {config.name} <{config.email}>\n'
+                text += f'{tag}: {self.config.name} <{self.config.email}>\n'
             text += line + '\n'
             last = line
 
