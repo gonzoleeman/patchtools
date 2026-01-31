@@ -2,6 +2,8 @@
 Represent Git Repos
 """
 
+import sys
+
 import configparser
 import os
 import pwd
@@ -87,9 +89,5 @@ class Config:
     def get_mainline_repos(self):
         """Return a canonicalized list of the mainline repos."""
         return [self._canonicalize(r) for r in self.mainline_repos]
-
-    def get_default_mainline_repo(self):
-        """Return the first mainline repo."""
-        return self._canonicalize(self.mainline_repos[0])
 
 # vim: sw=4 ts=4 et si:
