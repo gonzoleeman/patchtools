@@ -11,7 +11,6 @@ __all__ = [
     'TestExportpatchNormalFunctionality',
     'TestFixpatchErrorCases',
     'TestFixpatchNormalFunctionality',
-    'TestPatchModuleNormalFunctionality',
     ]
 
 # vim: sw=4 ts=4 et si:
