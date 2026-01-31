@@ -31,7 +31,7 @@ MAX_PATCH_NUM_WIDTH = 5
 def export_patch(commit, options, prefix, suffix):
     """Export a single commit/patch. Return 0 for success, else 1."""
     try:
-        p = Patch(commit, debug=options.debug, force=options.force)
+        p = Patch(commit=commit, debug=options.debug, force=options.force)
     except PatchError as e:
         print(e, file=sys.stderr)
         return 1
