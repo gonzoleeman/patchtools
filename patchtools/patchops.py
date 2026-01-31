@@ -3,7 +3,6 @@ Support package for doing SUSE Patch operations
 """
 
 import re
-from pathlib import Path
 
 from patchtools.command import run_command
 from patchtools.patcherror import PatchError
@@ -42,22 +41,10 @@ class NoRepositoryError(PatchError):
     """No repository found."""
 
 
-def git_dir(pathname):
-    """Return the git subdirectory string under the specified path."""
-    if pathname and Path(pathname).exists():
-        gdir = Path(pathname) / '.git'
-        if gdir.exists():
-            return str(gdir)
-    raise NoRepositoryError('No git repository found.')
-
-
 def get_tag(commit, repo):
     """Get the git tag for the specified commit."""
-    try:
-        gdir = git_dir(repo)
-    except NoRepositoryError:
-        return None
-    tag = run_command(f'git --git-dir={gdir} name-rev --refs=refs/tags/v* {commit}')
+    tag = run_command(f'git name-rev --refs=refs/tags/v* {commit}',
+                      cwd=repo)
     if not tag:
         return None
 
@@ -72,11 +59,7 @@ def get_tag(commit, repo):
 
 def get_next_tag(repo):
     """Get the next tag."""
-    try:
-        gdir = git_dir(repo)
-    except NoRepositoryError:
-        return None
-    tag = run_command(f"git -git-dir={gdir} tag -l 'v[0-9]*'")
+    tag = run_command("git tag -l 'v[0-9]*'", cwd=repo)
     if not tag:
         return None
 
@@ -103,11 +86,7 @@ def get_diffstat(message):
 
 def get_git_repo_url(repo):
     """Return the remote git repo URL."""
-    try:
-        gdir = git_dir(repo)
-    except NoRepositoryError:
-        return None
-    output = run_command(f'git --git-dir={gdir} remote show origin -n')
+    output = run_command('git remote show origin -n', cwd=repo)
     for line in output.split('\n'):
         m = re.search(r'URL:\s+(\S+)', line)
         if m:
@@ -117,13 +96,11 @@ def get_git_repo_url(repo):
 
 def confirm_commit(commit, repo):
     """Return whether or not the specified git is in the specified repo."""
-    try:
-        gdir = git_dir(repo)
-    except NoRepositoryError:
-        return False
-    head_name = run_command(f'git --git-dir={gdir} symbolic-ref --short HEAD')
-    remote_name = run_command(f'git --git-dir={gdir} config --get branch.{head_name}.remote')
-    out = run_command(f'git --git-dir={gdir} rev-list HEAD --not --remotes {remote_name}')
+    head_name = run_command('git symbolic-ref --short HEAD', cwd=repo)
+    remote_name = run_command(f'git config --get branch.{head_name}.remote',
+                              cwd=repo)
+    out = run_command(f'git rev-list HEAD --not --remotes {remote_name}',
+                      cwd=repo)
     if not out:
         return True
     commits = out.split()
@@ -132,20 +109,13 @@ def confirm_commit(commit, repo):
 
 def canonicalize_commit(commit, repo):
     """Return git's canonicalization of the specified commit."""
-    try:
-        gdir = git_dir(repo)
-    except NoRepositoryError:
-        return False
-    return run_command(f'git --git-dir={gdir} show -s {commit}^{{}} --pretty=%H')
+    return run_command(f'git show -s {commit}^{{}} --pretty=%H', cwd=repo)
 
 
 def get_commit(commit, repo, force=False):
     """Return git's idea of the specified commit."""
-    try:
-        gdir = git_dir(repo)
-    except NoRepositoryError:
-        return False
-    data = run_command(f'git --git-dir={gdir} diff-tree --no-renames --pretty=email -r -p --cc --stat {commit}')
+    data = run_command(f'git diff-tree --no-renames --pretty=email -r -p --cc --stat {commit}',
+                       cwd=repo)
     if not data:
         return None
     if not force and not confirm_commit(commit, repo):

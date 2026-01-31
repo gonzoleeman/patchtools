@@ -9,7 +9,7 @@ import site
 from pathlib import Path
 
 from patchtools.command import run_command
-from patchtools.patchops import NoRepositoryError, get_git_repo_url, git_dir
+from patchtools.patchops import get_git_repo_url
 
 MAINLINE_URLS = [
         """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git""",
@@ -21,11 +21,7 @@ MAINLINE_URLS = [
 
 def get_git_config(gitdir, var):
     """Return a configuraton variable for the specified repo."""
-    try:
-        gdir = git_dir(gitdir)
-    except NoRepositoryError:
-        return ''
-    res = run_command(f'git --git-dir={gdir} config {var}')
+    res = run_command(f'git config {var}', cwd=gitdir)
     return res.strip()
 
 
