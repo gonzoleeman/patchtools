@@ -11,8 +11,7 @@ __author__ = 'Jeff Mahoney'
 import sys
 from pathlib import Path
 
-from patchtools.modified_argparse import (ArgumentParsingError,
-                                          ModifiedArgumentParser)
+from patchtools.modified_argparse import ArgumentParsingError, ModifiedArgumentParser
 from patchtools.patch import Patch
 from patchtools.patcherror import PatchError
 from patchtools.version import __version__
