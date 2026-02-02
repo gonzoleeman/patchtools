@@ -1,6 +1,7 @@
 import subprocess
 import sys
 
+
 def run_command(command, input=None, stdout=subprocess.PIPE):
     proc = subprocess.run(command, shell=True, encoding='utf-8',
                           input=input, stdout=stdout,
