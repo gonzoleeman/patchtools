@@ -1,12 +1,12 @@
-"""patch class"""
+"""patchtools module initialization."""
 
 import os
 from . import config
 
-__version__ = '1.2'
 
 class PatchException(Exception):
     pass
+
 
 config = config.Config()
 
