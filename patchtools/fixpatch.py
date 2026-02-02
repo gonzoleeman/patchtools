@@ -8,15 +8,16 @@ subject found in the patch itself.
 __author__ = 'Jeff Mahoney'
 
 
-from patchtools import PatchException
+import os
+import sys
+
 from patchtools.modified_optparse import ModifiedOptionParser, OptionParsingError
 from patchtools.patch import Patch
+from patchtools.patcherror import PatchError
 from patchtools.version import __version__
-import sys
-import os
 
 
-def process_file(pathname, options):
+def fix_patchfile(pathname, options):
     """Fix one patchfile. Return 0 for success."""
     try:
         p = Patch()
@@ -79,7 +80,7 @@ def process_file(pathname, options):
         if fn != pathname:
             os.unlink(pathname)
 
-    except (FileNotFoundError, PermissionError, PatchException) as e:
+    except (FileNotFoundError, PermissionError, PatchError) as e:
         print(e, file=sys.stderr)
         return 1
 
@@ -129,7 +130,7 @@ def main():
         return 1
 
     for pathname in args:
-        res = process_file(pathname, options)
+        res = fix_patchfile(pathname, options)
         if res:
             return res
 

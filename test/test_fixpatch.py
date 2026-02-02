@@ -8,9 +8,10 @@ import filecmp
 import shutil
 import tempfile
 import unittest
+from contextlib import chdir  # requires python >= 3.11
 from pathlib import Path
 
-from .util import DATA_PATH, call_mut, compare_text_and_file, get_patch_path, import_mut
+from .util import DATA_PATH, call_mut, compare_text_and_file, create_config_file, get_patch_path, import_mut
 
 # the module under test (and the command/script name, as well)
 MUT = 'fixpatch'
@@ -22,6 +23,9 @@ FIX_FILE_1F = 'scsi-st-Tighten-the-page-format-heuristics-with-MODE-SELECT'
 SUBJECT_TESTING_FILE = 'subject-testing-file'
 SUBJECT_AND_REF_TESTING_FILE = 'subject-and-ref-testing-file'
 SUBJECT_AND_SIGNED_OFF_BY = 'subject-and-signed-off-by'
+
+# not a real file
+FILENAME_BOGUS = '/some/file'
 
 mut = import_mut(MUT)
 
@@ -36,7 +40,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_renaming(self):
         """Test fixpatch fix and rename."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing', fixpatch_dest)
@@ -50,7 +55,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_no_renaming(self):
         """Test fixpatch without rename."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path('temp', dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing', fixpatch_dest)
@@ -64,7 +70,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_add_suffix(self):
         """Test fixpatch rename with a suffix."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F,
                                                  dirname=tmpdir,
                                                  suffix='.patch',
@@ -81,7 +88,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_dry_run(self):
         """Test fixpatch dry run."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_src = f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing'
             fixpatch_dest = f'{tmpdir}/temp'
@@ -96,7 +104,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_no_force_on(self):
         """Test fixpatch rename with name collision, no force."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             patch_path_expected.touch()
             fixpatch_dest = f'{tmpdir}/temp'
@@ -108,7 +117,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_name_only(self):
         """Test fixpatch name-only."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing', fixpatch_dest)
@@ -121,7 +131,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_name_only_with_suffix(self):
         """Test fixpatch name-only mode, with suffix."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F,
                                                  dirname=tmpdir,
                                                  suffix='.patch',
@@ -135,7 +146,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_no_ack(self):
         """Test fixpatch fixing rename, without ack."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing', fixpatch_dest)
@@ -150,7 +162,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_no_diffstat_added(self):
         """Test fixpatch rename, without adding diffstat."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing.no_diffstat',
@@ -167,7 +180,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_header_only(self):
         """Test fixpatch rename, without adding diffstat or ack."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing.no_diffstat',
@@ -183,7 +197,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_update_only(self):
         """Test fixpatch, without adding diffstat, ack, or renaming."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path('temp', dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing.no_diffstat',
@@ -198,7 +213,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_setting_first_reference(self):
         """Test fixpatch rename, with a new reference."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing', fixpatch_dest)
@@ -212,7 +228,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_setting_second_reference(self):
         """Test fixpatch rename, with a 2nd reference."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing.with_reference',
@@ -227,7 +244,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_setting_two_references(self):
         """Test fixpatch rename, with a new reference."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing',
@@ -244,7 +262,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_setting_reference_header_only(self):
         """Test fixpatch rename, with a reference, and header-only."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing.no_diffstat',
@@ -259,7 +278,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_adding_existing_reference(self):
         """Test fixpatch rename, mostly empty patch, testing existing & new references."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path('some-subject-and-ref',
                                                  dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
@@ -279,7 +299,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_signed_off_by(self):
         """Test fixpatch rename, with signed-off-by."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing', fixpatch_dest)
@@ -294,7 +315,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_dummy_mainline_single(self):
         """Test fixpatch rename, with a single dummy mainline."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing', fixpatch_dest)
@@ -309,7 +331,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_dummy_mainline_dual(self):
         """Test fixpatch rename, with twoo dummy mainlines."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path(FIX_FILE_1F, dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing', fixpatch_dest)
@@ -324,7 +347,8 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
 
     def test_fixpatch_signed_off_by_alredy_there(self):
         """Test fixpatch rename, mostly empty patch, where signed-off-by already there."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path('some-subject-with-signed-off-by',
                                                  dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
@@ -352,21 +376,26 @@ class TestFixpatchErrorCases(unittest.TestCase):
 
     def test_err_bogus_option_long(self):
         """Test fixpatch with no patch filename supplied."""
-        (res, _, err_out) = call_mut(mut, MUT, ['--zzz'])
-        self.assertEqual(res, 1,
-                         f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('no such option' in err_out, f'err_out={err_out}')
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
+            (res, _, err_out) = call_mut(mut, MUT, ['--zzz', FILENAME_BOGUS])
+            self.assertEqual(res, 1,
+                             f'calling {MUT} expected return of 1, got {res}')
+            self.assertTrue('no such option' in err_out, f'err_out={err_out}')
 
     def test_err_no_patchname_supplied(self):
         """Test fixpatch with no patch filename supplied."""
-        (res, _, err_out) = call_mut(mut, MUT, [])
-        self.assertEqual(res, 1,
-                         f'calling {MUT} expected return of 1, got {res}')
-        self.assertTrue('Must supply' in err_out, f'err_out={err_out}')
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
+            (res, _, err_out) = call_mut(mut, MUT, [])
+            self.assertEqual(res, 1,
+                             f'calling {MUT} expected return of 1, got {res}')
+            self.assertTrue('Must supply' in err_out, f'err_out={err_out}')
 
     def test_err_bogus_filename_supplied(self):
         """Test fixpatch with a bogus patch filename supplied."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             non_existant_file_path = Path(tmpdir) / 'bogus'
             (res, _, err_out) = call_mut(mut, MUT,
                                          [non_existant_file_path.as_posix()])
@@ -377,7 +406,8 @@ class TestFixpatchErrorCases(unittest.TestCase):
 
     def test_err_no_rename_patch_readonly(self):
         """Test fixpatch no-rename but patch is read only."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path('temp', dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing', fixpatch_dest)
@@ -393,7 +423,8 @@ class TestFixpatchErrorCases(unittest.TestCase):
 
     def test_err_rename_patch_readonly_dir(self):
         """Test fixpatch rename but directory is read only."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path('temp', dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             shutil.copy2(f'{DATA_PATH}/{FIX_FILE_1F}.needs_fixing', fixpatch_dest)
@@ -408,7 +439,8 @@ class TestFixpatchErrorCases(unittest.TestCase):
 
     def test_err_empty_patch_no_subject(self):
         """Test fixpatch with an empty file, triggering a no-subject error."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             fixpatch_dest = f'{tmpdir}/temp'
             Path(fixpatch_dest).touch()
             (res, _, err_out) = call_mut(mut, MUT, [fixpatch_dest])
@@ -418,7 +450,8 @@ class TestFixpatchErrorCases(unittest.TestCase):
 
     def test_err_mostly_empty_patch_with_subject_line(self):
         """Test fixpatch with mostly empty file, having only a Subject line."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmpdir, chdir(tmpdir):
+            create_config_file()
             patch_path_expected = get_patch_path('testing-file', dirname=tmpdir)
             fixpatch_dest = f'{tmpdir}/temp'
             Path(fixpatch_dest).write_text('Subject: testing file', encoding='utf-8')

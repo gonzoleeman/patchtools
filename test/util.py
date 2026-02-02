@@ -21,6 +21,11 @@ PATCH_CFG_TEMPLATE = [
     ]
 
 
+class NoLinuxRepoDirError(RuntimeError):
+    """No Linux git repository error."""
+    def __init__(self, msg):
+        self.msg = msg
+
 def get_git_repo_dir():
     """Get a valid Linux git repo path.
 
@@ -30,26 +35,20 @@ def get_git_repo_dir():
     """
     linux_git_dir = os.getenv('LINUX_GIT')
     if not linux_git_dir:
-        return (False, 'No LINUX_GIT environment variable found')
+        raise NoLinuxRepoDirError('No LINUX_GIT environment variable found')
     if not Path(linux_git_dir).exists():
-        return (False, f'LINUX_GIT directory not found: {linux_git_dir}')
-    return (True, linux_git_dir)
+        raise NoLinuxRepoDirError(f'LINUX_GIT directory not found: {linux_git_dir}')
+    return linux_git_dir
 
 
 def create_config_file():
-    """Create a minimal config file, for testing.
-
-    Return (success/failure, error_msg/filename).
-    """
-    (ok, git_repo_reply) = get_git_repo_dir()
-    if not ok:
-        print(f'Error: {git_repo_reply}')
-        return None
+    """Create a minimal config file, for testing."""
+    git_repo_dir = get_git_repo_dir()
     cfp = Path('patch.cfg')
     with cfp.open('w', encoding='utf-8') as configf:
         for aline in PATCH_CFG_TEMPLATE:
             if '@PATHNAME@' in aline:
-                print(aline.replace('@PATHNAME@', git_repo_reply), file=configf)
+                print(aline.replace('@PATHNAME@', git_repo_dir), file=configf)
             else:
                 print(aline, file=configf)
     return cfp
@@ -58,10 +57,8 @@ def create_config_file():
 def import_mut(modname):
     """Import our module under test."""
     try:
-        configp = create_config_file()
         dynamic_mod = importlib.import_module(f'patchtools.{modname}')
         main_under_test = dynamic_mod.main
-        configp.unlink()
     finally:
         pass
     return main_under_test
@@ -94,7 +91,7 @@ def find_data_dir_path():
     for data_pathname in ['data', 'test/data', '../data', '../test/data']:
         data_path = Path(data_pathname)
         if data_path.is_dir():
-            return data_path
+            return Path.cwd() / data_path
     return None
 
 

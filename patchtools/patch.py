@@ -2,28 +2,31 @@
 Support package for doing SUSE Patch operations
 """
 
-import patchtools.patchops as patchops
-from patchtools import config, PatchException
-import re
+import email.parser
 import os
 import os.path
-import email.parser
-import urllib.request, urllib.parse, urllib.error
+import re
+import urllib.error
+import urllib.parse
+import urllib.request
 from urllib.parse import urlparse
-import string
+
+from patchtools import patchops
+from patchtools.config import Config
+from patchtools.patcherror import PatchError
 
 _patch_start_re = re.compile(r"^(---|\*\*\*|Index:)[ \t][^ \t]|^diff -|^index [0-9a-f]{7}")
 
-class InvalidCommitIDException(PatchException):
+class InvalidCommitIDError(PatchError):
     pass
 
-class InvalidPatchException(PatchException):
+class InvalidPatchError(PatchError):
     pass
 
-class InvalidURLException(PatchException):
+class InvalidURLError(PatchError):
     pass
 
-class EmptyCommitException(PatchException):
+class EmptyCommitError(PatchError):
     pass
 
 class Patch:
@@ -34,8 +37,9 @@ class Patch:
         self.force = force
         self.repourl = None
         self.message = None
-        self.repo_list = config.get_repos()
-        self.mainline_repo_list = config.get_mainline_repos()
+        self.config = Config()
+        self.repo_list = self.config.get_repos()
+        self.mainline_repo_list = self.config.get_mainline_repos()
         self.in_mainline = False
         if repo in self.mainline_repo_list:
             self.in_mainline = True
@@ -43,7 +47,7 @@ class Patch:
             print("DEBUG: repo_list:", self.repo_list)
 
         if commit and (re.search(r"\^", commit) or re.search(r"HEAD", commit)):
-            raise InvalidCommitIDException("Commit IDs must be hashes, not relative references. HEAD and ^ are not allowed.")
+            raise InvalidCommitIDError("Commit IDs must be hashes, not relative references. HEAD and ^ are not allowed.")
 
     def add_diffstat(self):
         for line in self.message.get_payload().splitlines():
@@ -104,9 +108,9 @@ class Patch:
 
     def add_signature(self, sob=False):
         for line in self.message.get_payload().splitlines():
-            for email in config.emails:
-                if re.search(r"Acked-by.*%s" % email, line) or \
-                   re.search(r"Signed-off-by.*%s" % email, line):
+            for email_addr in self.config.emails:
+                if re.search(r"Acked-by.*%s" % email_addr, line) or \
+                   re.search(r"Signed-off-by.*%s" % email_addr, line):
                     return
 
         text = ""
@@ -122,7 +126,7 @@ class Patch:
                     tag = "Signed-off-by"
                 else:
                     tag = "Acked-by"
-                text += "%s: %s <%s>\n" % (tag, config.name, config.email)
+                text += "%s: %s <%s>\n" % (tag, self.config.name, self.config.email)
             text += line + "\n"
             last = line
 
@@ -219,7 +223,7 @@ class Patch:
 
         uc = urlparse(url)
         if not uc.scheme:
-            raise InvalidURLException("X-Git-Url provided but is not a URL (%s)" % url)
+            raise InvalidURLError("X-Git-Url provided but is not a URL (%s)" % url)
 
         args = dict([x.split('=', 1) for x in uc.query.split(';')])
         if 'p' in args:
@@ -248,7 +252,7 @@ class Patch:
                 filename = os.path.join(dirname, filename)
             return filename
         else:
-            raise InvalidPatchException("Patch contains no Subject line")
+            raise InvalidPatchError("Patch contains no Subject line")
 
     def find_repo(self):
         if self.message['Git-repo'] or self.in_mainline:
@@ -472,7 +476,7 @@ class Patch:
         self.update_diffstat()
 
         if is_empty:
-            raise EmptyCommitException("commit is empty")
+            raise EmptyCommitError("commit is empty")
 
     def update_refs(self, refs):
         if not 'References' in self.message:

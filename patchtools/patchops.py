@@ -2,7 +2,7 @@
 Support package for doing SUSE Patch operations
 """
 
-from patchtools import PatchException
+from patchtools.patcherror import PatchError
 from patchtools.command import run_command
 import re
 
@@ -30,7 +30,7 @@ def key_version(tag):
 
     return ()
 
-class LocalCommitException(PatchException):
+class LocalCommitError(PatchError):
     pass
 
 def get_tag(commit, repo):
@@ -104,7 +104,7 @@ def get_commit(commit, repo, force=False):
         return None
 
     if not force and not confirm_commit(commit, repo):
-        raise LocalCommitException("Commit is not in the remote repository. Use -f to override.")
+        raise LocalCommitError("Commit is not in the remote repository. Use -f to override.")
 
     return data
 
