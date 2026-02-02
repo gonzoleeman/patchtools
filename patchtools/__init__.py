@@ -1,5 +1,3 @@
-# vim: sw=4 ts=4 et si:
-#
 """patch class"""
 
 import os
@@ -11,3 +9,5 @@ class PatchException(Exception):
     pass
 
 config = config.Config()
+
+# vim: sw=4 ts=4 et si:

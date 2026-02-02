@@ -19,3 +19,4 @@ class ModifiedOptionParser(OptionParser):
         raise OptionParsingError(msg)
 
 
+# vim: sw=4 ts=4 et si:

@@ -1,4 +1,3 @@
-# vim: sw=4 ts=4 et si:
 """
 Support package for doing SUSE Patch operations
 """
@@ -480,3 +479,5 @@ class Patch:
             self.message.add_header('References', refs)
         else:
             self.message['References'] = refs
+
+# vim: sw=4 ts=4 et si:

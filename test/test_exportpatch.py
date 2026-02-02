@@ -489,3 +489,5 @@ class TestExportpatchErrorCases(unittest.TestCase):
             (res, _, err_out) = call_mut(mut, MUT, ['-w', '-d', new_dir, COMMIT_1F])
             self.assertEqual(res, 1, f'calling {MUT} expected return of 1, got {res}')
             self.assertTrue('Permission denied' in err_out, f'err_out={err_out}')
+
+# vim: sw=4 ts=4 et si:

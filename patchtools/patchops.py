@@ -1,4 +1,3 @@
-# vim: sw=4 ts=4 et si:
 """
 Support package for doing SUSE Patch operations
 """
@@ -127,3 +126,5 @@ def safe_filename(name, keep_non_patch_brackets = True):
     name = re.sub(r'-+', '-', name)
     name = re.sub(r'\.+', '.', name)
     return name.strip('-. ')
+
+# vim: sw=4 ts=4 et si:

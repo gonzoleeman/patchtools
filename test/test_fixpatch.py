@@ -430,3 +430,5 @@ class TestFixpatchErrorCases(unittest.TestCase):
             res = filecmp.cmp(patch_path_expected,
                               f'{DATA_PATH}/{SUBJECT_TESTING_FILE}')
             self.assertEqual(res, True, 'patch file differs from expected')
+
+# vim: sw=4 ts=4 et si:

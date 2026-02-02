@@ -130,3 +130,5 @@ def compare_text_and_file(pbody, fname):
     finally:
         os.remove(tmpname)
     return res
+
+# vim: sw=4 ts=4 et si:
