@@ -1,5 +1,5 @@
 """
-Represent Git Repos
+Represent Git Repos.
 """
 
 import configparser
@@ -9,6 +9,7 @@ import re
 import site
 
 from patchtools.command import run_command
+from patchtools.patchops import get_git_repo_url
 
 MAINLINE_URLS = [ """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git""",
                   """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git""",
@@ -16,19 +17,11 @@ MAINLINE_URLS = [ """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linu
                   """https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux.git"""
                 ]
 
-def get_git_repo_url(gitdir):
-    command = f"(cd {gitdir}; git remote show origin -n)"
-    output = run_command(command)
-    for line in output.split('\n'):
-        m = re.search(r"URL:\s+(\S+)", line)
-        if m:
-            return m.group(1)
-
-    return None
 
 def get_git_config(gitdir, var):
-    command = f"(cd {gitdir}; git config {var})"
-    return run_command(command).strip()
+    res = run_command(f"git config {var}", cwd=gitdir)
+    return res.strip()
+
 
 # We deliberately don't catch exceptions when the option is mandatory
 class Config:
