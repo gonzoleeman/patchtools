@@ -8,7 +8,6 @@ subject found in the patch itself.
 __author__ = 'Jeff Mahoney'
 
 
-import os
 import sys
 from pathlib import Path
 
@@ -67,10 +66,10 @@ def fix_patchfile(pathname, options):
             fn = pathname
         else:
             fn = "{}{}".format(p.get_pathname(), suffix)
-            dirname = os.path.dirname(pathname)
-            if dirname != '':
+            dirname = Path(pathname).parent
+            if dirname:
                 fn = "{}/{}".format(dirname, fn)
-            if fn != pathname and os.path.exists(fn) and not options.force:
+            if fn != pathname and Path(fn).exists() and not options.force:
                 print("%s already exists." % fn, file=sys.stderr)
                 return 1
 
@@ -78,7 +77,7 @@ def fix_patchfile(pathname, options):
         with Path(fn).open('w', encoding='utf-8') as f:
             print(p.message.as_string(unixfrom=False), file=f)
         if fn != pathname:
-            os.unlink(pathname)
+            Path(pathname).unlink()
 
     except (FileNotFoundError, PermissionError, PatchError) as e:
         print(e, file=sys.stderr)

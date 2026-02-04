@@ -3,8 +3,6 @@ Support package for doing SUSE Patch operations
 """
 
 import email.parser
-import os
-import os.path
 import re
 import urllib.error
 import urllib.parse
@@ -249,7 +247,7 @@ class Patch:
                 filename = filename[0:truncate_chars]
             filename = prefix + filename + suffix
             if dirname:
-                filename = os.path.join(dirname, filename)
+                filename = str(Path(dirname) / filename)
             return filename
         else:
             raise InvalidPatchError("Patch contains no Subject line")

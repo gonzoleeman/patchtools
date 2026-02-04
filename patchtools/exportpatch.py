@@ -5,7 +5,6 @@ From Jeff Mahoney, updated by Lee Duncan.
 
 __author__ = 'Jeff Mahoney'
 
-import os
 import sys
 from pathlib import Path
 
@@ -46,13 +45,12 @@ def export_patch(commit, options, prefix, suffix):
         p.add_signature(options.signed_off_by)
         if options.write:
             fn = p.get_pathname(options.dir, prefix, suffix)
-            if os.path.exists(fn) and not options.force:
+            if Path(fn).exists() and not options.force:
                 f = fn
                 fn += "-%s" % commit[0:8]
                 print("%s already exists. Using %s" % (f, fn), file=sys.stderr)
-            print(os.path.basename(fn))
+            print(Path(fn).name)
             try:
-                f = open(fn, 'w', encoding='utf-8')
                 with Path(fn).open('w', encoding='utf-8') as f:
                     print(p.message.as_string(False), file=f)
             except OSError as e:
