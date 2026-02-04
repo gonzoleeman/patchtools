@@ -10,6 +10,7 @@ __author__ = 'Jeff Mahoney'
 
 import os
 import sys
+from pathlib import Path
 
 from patchtools.modified_optparse import ModifiedOptionParser, OptionParsingError
 from patchtools.patch import Patch
@@ -21,8 +22,8 @@ def fix_patchfile(pathname, options):
     """Fix one patchfile. Return 0 for success."""
     try:
         p = Patch()
-        f = open(pathname, "r")
-        p.from_email(f.read())
+        with Path(pathname).open('r', encoding='utf-8') as f:
+            p.from_email(f.read())
 
         if options.name_only:
             suffix=""
@@ -73,10 +74,9 @@ def fix_patchfile(pathname, options):
                 print("%s already exists." % fn, file=sys.stderr)
                 return 1
 
-        f = open(fn, "w")
         print(fn)
-        print(p.message.as_string(unixfrom=False), file=f)
-        f.close()
+        with Path(fn).open('w', encoding='utf-8') as f:
+            print(p.message.as_string(unixfrom=False), file=f)
         if fn != pathname:
             os.unlink(pathname)
 
