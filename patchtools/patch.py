@@ -259,8 +259,7 @@ class Patch:
             if dirname:
                 filename = str(Path(dirname) / filename)
             return filename
-        else:
-            raise InvalidPatchError("Patch contains no Subject line")
+        raise InvalidPatchError("Patch contains no Subject line")
 
     def find_repo(self):
         """Find repo for our Patch. (XXX return value ignored.)"""
@@ -367,8 +366,8 @@ class Patch:
                 count = 0
             else:
                 count += 1
-                if start >= 0 and end < 0 and (count > 3 or n +1 == len(lines)):
-                    end = n # count this line
+                if start >= 0 > end and (count > 3 or n + 1 == len(lines)):
+                    end = n  # count this line
                     if end >= len(lines):
                         if debug:
                             print("Truncating end")

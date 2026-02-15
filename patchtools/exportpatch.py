@@ -124,7 +124,7 @@ def main():
     num_width = 4
     if options.num_width:
         _n = int(options.num_width)
-        if _n > 0 and _n < 5:
+        if 0 < _n < 5:
             num_width = _n
 
     n = options.first_number
