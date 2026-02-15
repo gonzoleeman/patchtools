@@ -5,7 +5,6 @@ Represent Git Repos.
 import configparser
 import os
 import pwd
-import re
 import site
 from pathlib import Path
 
@@ -42,27 +41,27 @@ class Config:
 
     def read_configs(self):
         """Return the configuraiton file(s)."""
-        config = configparser.ConfigParser()
-        files_read = config.read([ '/etc/patch.cfg',
-                                   '%s/etc/patch.cfg' % site.USER_BASE,
-                                   Path('~/.patch.cfg').expanduser(),
-                                   './patch.cfg'])
+        our_config = configparser.ConfigParser()
+        our_config.read(['/etc/patch.cfg',
+                         '%s/etc/patch.cfg' % site.USER_BASE,
+                         Path('~/.patch.cfg').expanduser(),
+                         './patch.cfg'])
         try:
-            self.repos = config.get('repositories', 'search').split()
-            repos = config.get('repositories', 'mainline').split()
+            self.repos = our_config.get('repositories', 'search').split()
+            repos = our_config.get('repositories', 'mainline').split()
             self.mainline_repos += repos
-        except (configparser.NoOptionError, configparser.NoSectionError) as e:
+        except (configparser.NoOptionError, configparser.NoSectionError):
             pass
 
         try:
-            self.name = config.get('contact', 'name')
-        except (configparser.NoOptionError, configparser.NoSectionError) as e:
+            self.name = our_config.get('contact', 'name')
+        except (configparser.NoOptionError, configparser.NoSectionError):
             pass
 
         try:
-            self.emails = config.get('contact', 'email').split()
+            self.emails = our_config.get('contact', 'email').split()
             self.email = self.emails[0]
-        except (configparser.NoOptionError, configparser.NoSectionError) as e:
+        except (configparser.NoOptionError, configparser.NoSectionError):
             pass
 
     def merge_mainline_repos(self):

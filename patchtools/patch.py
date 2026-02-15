@@ -56,10 +56,8 @@ class Patch:
                 return
 
         diffstat = patchops.get_diffstat(self.body())
-        text = ""
         switched = False
         need_sep = True
-        body = ""
 
         for line in self.header().splitlines():
             if re.match(r"^---$", line) and not switched:
@@ -163,7 +161,7 @@ class Patch:
                 self.find_repo()
 
         if not self.repo:
-            f = self.find_repo()
+            self.find_repo()
 
         if self.repo in self.mainline_repo_list:
             self.in_mainline = True
@@ -289,19 +287,6 @@ class Patch:
 
         return False
 
-    def extract(self, paths):
-        """Extract the message from our message."""
-        text = ""
-        chunk = ""
-        for line in self.message.get_payload().splitlines():
-            if _patch_start_re.match(line):
-                text += chunk
-                chunk = ""
-            chunk += line + "\n"
-
-        text += chunk
-        return text
-
     def header(self):
         """Return our headeer as a string."""
         in_body = False
@@ -407,12 +392,10 @@ class Patch:
 
     def handle_merge(self):
         """Handle a merg of Patch chunks."""
-        body = ""
         chunk = ""
         text = ""
 
         in_chunk = False
-        in_patch = False
         lines = self.body().splitlines()
         for line in lines:
             if _patch_start_re.match(line):
@@ -421,7 +404,6 @@ class Patch:
                     chunk = ""
                 else:
                     chunk += line + "\n"
-                in_patch = True
                 in_chunk = False
             elif re.match(r"^@@@", line):
                 if in_chunk:
