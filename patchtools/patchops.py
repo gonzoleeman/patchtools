@@ -9,6 +9,7 @@ from patchtools.patcherror import PatchError
 
 
 def key_version(tag):
+    """Return the version nuber the the supplied tag."""
     m = re.match(r"v2\.(\d+)\.(\d+)(\.(\d+)|-rc(\d+)|)", tag)
     if m:
         major = 2
@@ -34,10 +35,11 @@ def key_version(tag):
 
 
 class LocalCommitError(PatchError):
-    pass
+    """Local commit Error."""
 
 
 def get_tag(commit, repo):
+    """Get the git tag for the specified commit."""
     # XXX will the refs/tags/v* wildcard work without using a shell?
     tag = run_command(f"git name-rev --refs=refs/tags/v* {commit}", cwd=repo)
     if not tag:
@@ -52,6 +54,7 @@ def get_tag(commit, repo):
     return None
 
 def get_next_tag(repo):
+    """Get the next tag."""
     tag = run_command(f"git tag -l 'v[0-9]*'", cwd=repo)
     if not tag:
         return None
@@ -74,9 +77,11 @@ def get_next_tag(repo):
     return None
 
 def get_diffstat(message):
+    """Return output of the diffstat command for our message."""
     return run_command("diffstat -p1", our_input=message)
 
 def get_git_repo_url(repo):
+    """Return the remote git repo URL."""
     output = run_command(f"git remote show origin -n", cwd=repo)
     for line in output.split('\n'):
         m = re.search(r"URL:\s+(\S+)", line)
@@ -85,6 +90,7 @@ def get_git_repo_url(repo):
     return None
 
 def confirm_commit(commit, repo):
+    """Return whether or not the specified commit is in the specified repo."""
     head_name = run_command(f"git symbolic-ref --short HEAD", cwd=repo)
     remote_name = run_command(f"git config --get branch.{head_name}.remote",
                               cwd=repo)
@@ -99,9 +105,11 @@ def confirm_commit(commit, repo):
     return True
 
 def canonicalize_commit(commit, repo):
+    """Return git's cannonicalization of the specified commit."""
     return run_command(f"git show -s {commit}^{{}} --pretty=%H", cwd=repo)
 
 def get_commit(commit, repo, force=False):
+    """Return git's idea of the specified commit."""
     data = run_command(f"git diff-tree --no-renames --pretty=email -r -p --cc --stat {commit}",
                        cwd=repo)
     if not data:
@@ -113,6 +121,7 @@ def get_commit(commit, repo, force=False):
     return data
 
 def safe_filename(name, keep_non_patch_brackets = True):
+    """Return 'safe' version of the patch's filename."""
     if name is None:
         return name
 

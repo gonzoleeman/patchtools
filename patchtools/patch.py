@@ -17,18 +17,19 @@ from patchtools.patcherror import PatchError
 _patch_start_re = re.compile(r"^(---|\*\*\*|Index:)[ \t][^ \t]|^diff -|^index [0-9a-f]{7}")
 
 class InvalidCommitIDError(PatchError):
-    pass
+    """An invalid commit ID Error."""
 
 class InvalidPatchError(PatchError):
-    pass
+    """An invalid Patch Error."""
 
 class InvalidURLError(PatchError):
-    pass
+    """An invalid URL Error."""
 
 class EmptyCommitError(PatchError):
-    pass
+    """An empty commit Error."""
 
 class Patch:
+    """The Patch class, representing one patch."""
     def __init__(self, commit=None, repo=None, debug=False, force=False):
         self.commit = commit
         self.repo = repo
@@ -49,6 +50,7 @@ class Patch:
             raise InvalidCommitIDError("Commit IDs must be hashes, not relative references. HEAD and ^ are not allowed.")
 
     def add_diffstat(self):
+        """Add a diffstat to the Patch."""
         for line in self.message.get_payload().splitlines():
             if re.search(r"[0-9]+ files? changed, [0-9]+ insertion", line):
                 return
@@ -73,6 +75,7 @@ class Patch:
         self.message.set_payload(header + diffstat + self.body())
 
     def strip_diffstat(self):
+        """Strip a diffstat."""
         text = ""
         eat = ""
         for line in self.header().splitlines():
@@ -88,10 +91,12 @@ class Patch:
         self.message.set_payload(text + "\n" + self.body())
 
     def update_diffstat(self):
+        """Remove and replace the diffstat in a Patch."""
         self.strip_diffstat()
         self.add_diffstat()
 
     def add_references(self, newrefs):
+        """Add a Reference tag the to Patch."""
         if 'References' in self.message:
             refs = self.message['References'].split()
             for ref in refs:
@@ -106,6 +111,7 @@ class Patch:
             self.message.add_header('References', ' '.join(newrefs))
 
     def add_signature(self, sob=False):
+        """Add a signature tag to the Patch."""
         for line in self.message.get_payload().splitlines():
             for email_addr in self.config.emails:
                 if re.search(r"Acked-by.*%s" % email_addr, line) or \
@@ -139,6 +145,7 @@ class Patch:
             self.message.add_header('Patch-mainline', ' '.join(tag))
 
     def from_email(self, msg):
+        """Set up our Patch state from an email message."""
         p = email.parser.Parser()
         self.message = p.parsestr(msg)
 
@@ -191,10 +198,12 @@ class Patch:
         self.handle_merge()
 
     def from_file(self, pathname):
+        """Set up our Patch state from an email file."""
         with Path(pathname).open('r', encoding='utf-8') as f:
             self.from_email(f.read())
 
     def files(self):
+        """Return a list of files from the difstat. (XXX only 1 returned?)"""
         diffstat = patchops.get_diffstat(self.body())
         f = []
         for line in diffstat.splitlines():
@@ -206,6 +215,7 @@ class Patch:
             return f
 
     def find_commit(self):
+        """Find current commit/repo and setup our instance from that."""
         for repo in self.repo_list:
             commit = patchops.get_commit(self.commit, repo, self.force)
             if commit is not None:
@@ -216,6 +226,7 @@ class Patch:
         return False
 
     def parse_commitdiff_header(self):
+        """Parse our commit's diff header and fill in state from that."""
         url = self.message['X-Git-Url']
         url = urllib.parse.unquote(url)
 
@@ -240,6 +251,7 @@ class Patch:
         del self.message['X-Git-Url']
 
     def get_pathname(self, dirname=None, prefix="", suffix="", truncate=64):
+        """Get the patchname for the Patch."""
         if self.message and self.message['Subject']:
             filename = patchops.safe_filename(self.message['Subject'])
             truncate_chars = truncate - len(filename) - len(prefix + suffix)
@@ -253,6 +265,7 @@ class Patch:
             raise InvalidPatchError("Patch contains no Subject line")
 
     def find_repo(self):
+        """Find repo for our Patch. (XXX return value ignored.)"""
         if self.message['Git-repo'] or self.in_mainline:
             return True
 
@@ -277,6 +290,7 @@ class Patch:
         return False
 
     def extract(self, paths):
+        """Extract the message from our message."""
         text = ""
         chunk = ""
         for line in self.message.get_payload().splitlines():
@@ -289,6 +303,7 @@ class Patch:
         return text
 
     def header(self):
+        """Return our headeer as a string."""
         in_body = False
         ret = ""
         for line in self.message.get_payload().splitlines():
@@ -302,6 +317,7 @@ class Patch:
         return ret
 
     def body(self):
+        """Return the body of Patch as a string."""
         in_body = False
         ret = ""
         for line in self.message.get_payload().splitlines():
@@ -315,6 +331,7 @@ class Patch:
 
     @staticmethod
     def file_in_path(filename, paths):
+        """Class function to check for filename in path."""
         if filename in paths:
             return True
         for f in paths:
@@ -324,6 +341,7 @@ class Patch:
 
     @staticmethod
     def shrink_chunk(chunk):
+        """Class function to shrink patch body."""
         n = -1
         text = ""
         start = -1
@@ -388,6 +406,7 @@ class Patch:
         return text
 
     def handle_merge(self):
+        """Handle a merg of Patch chunks."""
         body = ""
         chunk = ""
         text = ""
@@ -426,6 +445,7 @@ class Patch:
         self.message.set_payload(self.header() + text)
 
     def filter(self, files, exclude=False):
+        """Filter our Patch files that are excluded."""
         is_empty = False
         body = ""
         chunk = ""
@@ -477,6 +497,7 @@ class Patch:
             raise EmptyCommitError("commit is empty")
 
     def update_refs(self, refs):
+        """Update the References tag in our Patch."""
         if not 'References' in self.message:
             self.message.add_header('References', refs)
         else:

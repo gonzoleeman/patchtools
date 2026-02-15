@@ -20,12 +20,14 @@ MAINLINE_URLS = [ """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linu
 
 
 def get_git_config(gitdir, var):
+    """Return a git configuration variable for the specified repo."""
     res = run_command(f"git config {var}", cwd=gitdir)
     return res.strip()
 
 
 # We deliberately don't catch exceptions when the option is mandatory
 class Config:
+    """The Configuration class, built from config files."""
     def __init__(self):
         # Set some sane defaults
         self.repos = [Path.cwd()]
@@ -39,6 +41,7 @@ class Config:
         self.merge_mainline_repos()
 
     def read_configs(self):
+        """Return the configuraiton file(s)."""
         config = configparser.ConfigParser()
         files_read = config.read([ '/etc/patch.cfg',
                                    '%s/etc/patch.cfg' % site.USER_BASE,
@@ -63,12 +66,14 @@ class Config:
             pass
 
     def merge_mainline_repos(self):
+        """Merge repos found in our list into the mainline list, if appropriate."""
         for repo in self.repos:
             url = get_git_repo_url(repo)
             if url in self.mainline_repos:
                 self.mainline_repos.append(repo)
 
     def _canonicalize(self, path):
+        """Return the canonicalized pathname."""
         if path[0] == '/':
             return str(Path(path).resolve())
         if path == '.':
@@ -76,9 +81,11 @@ class Config:
         return path
 
     def get_repos(self):
+        """Return a canonicalized list of our repos."""
         return list(self._canonicalize(r) for r in self.repos)
 
     def get_mainline_repos(self):
+        """Return a cannonicalized list of the mainline repos."""
         return list(self._canonicalize(r) for r in self.mainline_repos)
 
 # vim: sw=4 ts=4 et si:
