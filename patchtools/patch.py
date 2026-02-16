@@ -30,19 +30,17 @@ class EmptyCommitError(PatchError):
 
 class Patch:
     """The Patch class, representing one patch."""
-    def __init__(self, commit=None, repo=None, debug=False, force=False):
+    def __init__(self, commit=None, debug=False, force=False):
         self.commit = commit
-        self.repo = repo
         self.debug = debug
         self.force = force
+        self.repo = None
         self.repourl = None
         self.message = None
         self.config = Config()
         self.repo_list = self.config.get_repos()
         self.mainline_repo_list = self.config.get_mainline_repos()
         self.in_mainline = False
-        if repo in self.mainline_repo_list:
-            self.in_mainline = True
         if self.debug:
             print('DEBUG: repo_list:', self.repo_list)
 
