@@ -1,8 +1,10 @@
-"""Our own 'optparse' class, then does not call sys.exit().
+"""
+Our own 'optparse' class, then does not call sys.exit().
 
 Set up Option Parsing class so that we can
 stop the option parser from calling sys.exit()
-when it encounters an error."""
+when it encounters an error.
+"""
 
 from optparse import OptionParser
 

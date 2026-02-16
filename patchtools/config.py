@@ -20,7 +20,7 @@ MAINLINE_URLS = [ """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linu
 
 def get_git_config(gitdir, var):
     """Return a git configuration variable for the specified repo."""
-    res = run_command(f"git config {var}", cwd=gitdir)
+    res = run_command(f'git config {var}', cwd=gitdir)
     return res.strip()
 
 
@@ -32,9 +32,9 @@ class Config:
         self.repos = [Path.cwd()]
         self.mainline_repos = MAINLINE_URLS
         self.merge_mainline_repos()
-        self.email = get_git_config(Path.cwd(), "user.email")
+        self.email = get_git_config(Path.cwd(), 'user.email')
         self.emails = [self.email]
-        self.name = pwd.getpwuid(os.getuid()).pw_gecos.split(",")[0].strip()
+        self.name = pwd.getpwuid(os.getuid()).pw_gecos.split(',')[0].strip()
 
         self.read_configs()
         self.merge_mainline_repos()
