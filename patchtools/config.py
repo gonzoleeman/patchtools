@@ -81,10 +81,12 @@ class Config:
 
     def get_repos(self):
         """Return a canonicalized list of our repos."""
-        return list(self._canonicalize(r) for r in self.repos)
+        return [self._canonicalize(r) for r in self.repos]
+
 
     def get_mainline_repos(self):
         """Return a cannonicalized list of the mainline repos."""
-        return list(self._canonicalize(r) for r in self.mainline_repos)
+        return [self._canonicalize(r) for r in self.mainline_repos]
+
 
 # vim: sw=4 ts=4 et si:
