@@ -112,8 +112,8 @@ class Patch:
         """Add a signature tag to the Patch."""
         for line in self.message.get_payload().splitlines():
             for email_addr in self.config.emails:
-                if re.search(r"Acked-by.*%s" % email_addr, line) or \
-                   re.search(r"Signed-off-by.*%s" % email_addr, line):
+                if re.search(rf"Acked-by.*{email_addr}", line) or \
+                   re.search(rf"Signed-off-by.*{email_addr}", line):
                     return
 
         text = ""
@@ -129,7 +129,8 @@ class Patch:
                     tag = "Signed-off-by"
                 else:
                     tag = "Acked-by"
-                text += "%s: %s <%s>\n" % (tag, self.config.name, self.config.email)
+                text += f'{tag}: {self.config.name} <{self.config.email}>\n'
+
             text += line + "\n"
             last = line
 
@@ -156,7 +157,7 @@ class Patch:
             if m:
                 msg_commit = m.group(1)
                 if not self.commit or \
-                   re.match(r"^%s.*" % self.commit, msg_commit) is not None:
+                   re.match(rf'^{self.commit}.*', msg_commit) is not None:
                     self.commit = msg_commit
                 self.find_repo()
 
@@ -230,7 +231,7 @@ class Patch:
 
         uc = urlparse(url)
         if not uc.scheme:
-            raise InvalidURLError("X-Git-Url provided but is not a URL (%s)" % url)
+            raise InvalidURLError(f'X-Git-Url provided but is not a URL ({url})')
 
         args = dict([x.split('=', 1) for x in uc.query.split(';')])
         if 'p' in args:
@@ -238,12 +239,11 @@ class Patch:
 
         if uc.netloc == 'git.kernel.org':
             self.repo = None
-            self.repourl = 'git://%s/pub/scm/%s' % (uc.netloc, args['p'])
+            self.repourl = f'git://{uc.netloc}/pub/scm/{args["p"]}'
         # Add more special cases here
         else:
             self.repo = None
-            self.repourl = '%s//%s%s' % (uc.scheme, uc.netloc, \
-                                         uc.path + args['p'])
+            self.repourl = f'{uc.scheme}//{uc.netloc}{uc.path + args["p"]}'
         if args['h'] and not self.commit:
             self.commit = args['h']
         del self.message['X-Git-Url']
@@ -343,7 +343,7 @@ class Patch:
                     start = n - 3 # count this line
                     if start < 0:
                         if debug:
-                            print("resetting start(1) (%d, %d)" % (start, n))
+                            print(f'resetting start(1) ({start}, {n})')
                             print("----")
                             print(chunk)
                             print("----")
@@ -356,7 +356,7 @@ class Patch:
                     start = n - 3 # count this line
                     if start < 0:
                         if debug:
-                            print("resetting start(2) (%d, %d)" % (start, n))
+                            print(f'resetting start(2) ({start}, {n})')
                             print("----")
                             print(chunk)
                             print("----")
@@ -378,8 +378,7 @@ class Patch:
 
             if start >= 0 and end >= 0:
                 diff = end - start
-                text +=  "@@ -%d,%d +%d,%d @@\n" % \
-                    (start + 1, diff - added, start + 1, diff - removed)
+                text += f'@@ -{start + 1},{diff - added} +{start + 1},{diff - removed} @@\n'
                 text += "\n".join(lines[start:end])
                 text += '\n'
                 end = -1
@@ -453,14 +452,14 @@ class Patch:
 
         self.message.set_payload(self.header() + body)
 
-        if body == "":
+        if not body:
             is_empty = True
 
         if partial:
             commit = self.message['Git-commit']
             if not '(partial)' in commit:
                 self.message.replace_header('Git-commit',
-                                            '%s (partial)' % commit)
+                                            f'{commit} (partial)')
             if exclude:
                 filtered_header = ' !'.join([''] + files)[1:]
             else:
@@ -469,7 +468,7 @@ class Patch:
             if 'Patch-filtered' in self.message:
                 h = self.message['Patch-filtered']
                 self.message.replace_header('Patch-filtered',
-                                            "%s %s" % (h, filtered_header))
+                                            f'{h} {filtered_header}')
             else:
                 self.message['Patch-filtered'] = filtered_header
         self.update_diffstat()

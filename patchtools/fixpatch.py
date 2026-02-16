@@ -29,7 +29,7 @@ def fix_patchfile(pathname, options):
             if options.suffix:
                 suffix = ".patch"
             fn = p.get_pathname()
-            print("{}{}".format(fn, suffix))
+            print(f'{fn}{suffix}')
             return 0
 
         if options.update_only:
@@ -65,12 +65,12 @@ def fix_patchfile(pathname, options):
         if options.no_rename:
             fn = pathname
         else:
-            fn = "{}{}".format(p.get_pathname(), suffix)
+            fn = f'{p.get_pathname()}{suffix}'
             dirname = Path(pathname).parent
             if dirname:
-                fn = "{}/{}".format(dirname, fn)
+                fn = f'{dirname}/{fn}'
             if fn != pathname and Path(fn).exists() and not options.force:
-                print("%s already exists." % fn, file=sys.stderr)
+                print(f'{fn} already exists.', file=sys.stderr)
                 return 1
 
         print(fn)

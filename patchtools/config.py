@@ -43,7 +43,7 @@ class Config:
         """Return the configuraiton file(s)."""
         our_config = configparser.ConfigParser()
         our_config.read(['/etc/patch.cfg',
-                         '%s/etc/patch.cfg' % site.USER_BASE,
+                         f'{site.USER_BASE}/etc/patch.cfg',
                          Path('~/.patch.cfg').expanduser(),
                          './patch.cfg'])
         try:

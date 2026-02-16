@@ -54,7 +54,7 @@ def get_tag(commit, repo):
 
 def get_next_tag(repo):
     """Get the next tag."""
-    tag = run_command(f"git tag -l 'v[0-9]*'", cwd=repo)
+    tag = run_command("git tag -l 'v[0-9]*'", cwd=repo)
     if not tag:
         return None
 
@@ -66,11 +66,13 @@ def get_next_tag(repo):
     if m:
         # Post-release commit with no rc, it'll be rc1
         if not m.group(3):
-            nexttag = "v%s.%d-rc1" % (m.group(1), int(m.group(2)) + 1)
+            nexttag = f'v{m.group(1)}.{int(m.group(2)) + 1}-rc1'
         else:
-            nexttag = "v%s.%d or v%s.%s-rc%d (next release)" % \
-                      (m.group(1), int(m.group(2)), m.group(1),
-                       m.group(2), int(m.group(4)) + 1)
+            nexttag = (
+                    f'v{m.group(1)}.{int(m.group(2))} or '
+                    f'v{m.group(1)}.{m.group(2)}-rc{int(m.group(4)) + 1} '
+                    '(next release)'
+                    )
         return nexttag
 
     return None
@@ -81,7 +83,7 @@ def get_diffstat(message):
 
 def get_git_repo_url(repo):
     """Return the remote git repo URL."""
-    output = run_command(f"git remote show origin -n", cwd=repo)
+    output = run_command('git remote show origin -n', cwd=repo)
     for line in output.split('\n'):
         m = re.search(r"URL:\s+(\S+)", line)
         if m:
@@ -90,7 +92,7 @@ def get_git_repo_url(repo):
 
 def confirm_commit(commit, repo):
     """Return whether or not the specified commit is in the specified repo."""
-    head_name = run_command(f"git symbolic-ref --short HEAD", cwd=repo)
+    head_name = run_command('git symbolic-ref --short HEAD', cwd=repo)
     remote_name = run_command(f"git config --get branch.{head_name}.remote",
                               cwd=repo)
     out = run_command(f"git rev-list HEAD --not --remotes {remote_name}",

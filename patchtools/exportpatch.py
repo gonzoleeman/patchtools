@@ -34,21 +34,21 @@ def export_patch(commit, options, prefix, suffix):
             try:
                 p.filter(options.extract)
             except EmptyCommitError:
-                print("Commit %s is now empty. Skipping." % commit, file=sys.stderr)
+                print(f'Commit {commit} is now empty. Skipping.', file=sys.stderr)
                 return 0
         if options.exclude:
             try:
                 p.filter(options.exclude, True)
             except EmptyCommitError:
-                print("Commit %s is now empty. Skipping." % commit, file=sys.stderr)
+                print(f'Commit {commit} is now empty. Skipping.', file=sys.stderr)
                 return 0
         p.add_signature(options.signed_off_by)
         if options.write:
             fn = p.get_pathname(options.dir, prefix, suffix)
             if Path(fn).exists() and not options.force:
                 f = fn
-                fn += "-%s" % commit[0:8]
-                print("%s already exists. Using %s" % (f, fn), file=sys.stderr)
+                fn += f'-{commit[0:8]}'
+                print(f'{f} already exists. Using {fn}', file=sys.stderr)
             print(Path(fn).name)
             try:
                 with Path(fn).open('w', encoding='utf-8') as f:
@@ -61,7 +61,7 @@ def export_patch(commit, options, prefix, suffix):
             print(p.message.as_string(False))
         return 0
 
-    print("Couldn't locate commit \"%s\"; Skipping." % commit, file=sys.stderr)
+    print(f'Could not locate commit "{commit}"; Skipping.', file=sys.stderr)
     return 1
 
 
@@ -129,9 +129,7 @@ def main():
 
     n = options.first_number
     for commit in args:
-        prefix = ""
-        if options.numeric:
-            prefix = "{0:0{1}}-".format(n, num_width)
+        prefix = f'{n:0{num_width}}-' if options.numeric else ''
 
         res = export_patch(commit, options, prefix, suffix)
         if res:
