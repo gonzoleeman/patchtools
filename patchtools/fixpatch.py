@@ -21,7 +21,7 @@ from patchtools.version import __version__
 def fix_patchfile(pathname, options):
     """Fix one patchfile. Return 0 for success."""
     try:
-        p = Patch()
+        p = Patch(debug=options.debug)
         with Path(pathname).open('r', encoding='utf-8') as f:
             p.from_email(f.read())
 
@@ -123,6 +123,8 @@ def main():
     parser.add_argument('-s', '--suffix', action='store_true',
                         help='When generating the patch name, append ".patch" suffix to filenames.',
                         default=False)
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='set debug mode', default=False)
     parser.add_argument('pathname', nargs='+', action='extend',
                         help='One or more patch to be fixed.')
 
