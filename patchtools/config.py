@@ -11,11 +11,12 @@ from pathlib import Path
 from patchtools.command import run_command
 from patchtools.patchops import get_git_repo_url
 
-MAINLINE_URLS = [ """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git""",
-                  """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git""",
-                  """https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git""",
-                  """https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux.git"""
-                ]
+MAINLINE_URLS = [
+        """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git""",
+        """git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git""",
+        """https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git""",
+        """https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux.git""",
+        ]
 
 
 def get_git_config(gitdir, var):
