@@ -128,18 +128,15 @@ def get_commit(commit, repo, force=False):
     return data
 
 
-def safe_filename(name, keep_non_patch_brackets=True):
+def safe_filename(name):
     """Return 'safe' version of the patch's filename."""
     if name is None:
         return name
 
     # These mimic the filters that git-am applies when it parses the email
     # to remove noise from the subject line.
-    # keep_non_patch_brackets=True is the equivalent of git am -b
-    if keep_non_patch_brackets:
-        name = re.sub(r'(([Rr][Ee]:|\[PATCH[^]]*\])[ \t]*)*', '', name, count=1)
-    else:
-        name = re.sub(r'(([Rr][Ee]:|\[[^]]*\])[ \t]*)*', '', name, count=1)
+    # It is the equivilent of "git am -b"
+    name = re.sub(r'(([Rr][Ee]:|\[PATCH[^]]*\])[ \t]*)*', '', name, count=1)
 
     # This mimics the filters that git-format-patch applies prior to adding
     # prefixes or suffixes.
