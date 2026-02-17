@@ -34,7 +34,7 @@ fixpatch = "patchtools.fixpatch:main"
 version = {attr = "patchtools.version.__version__"}
 
 [tool.ruff]
-line-length = 120
+line-length = 130
 exclude = [
     "*venv",
     "build",
@@ -369,13 +369,13 @@ valid-metaclass-classmethod-first-arg = ["mcs"]
 max-args = 5
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes = 7
+max-attributes = 10
 
 # Maximum number of boolean expressions in an if statement (see R0916).
 max-bool-expr = 5
 
 # Maximum number of branch for function / method body.
-max-branches = 12
+max-branches = 20
 
 # Maximum number of locals for function / method body.
 max-locals = 15
@@ -393,7 +393,7 @@ max-public-methods = 20
 max-returns = 6
 
 # Maximum number of statements in function / method body.
-max-statements = 50
+max-statements = 60
 
 # Minimum number of public methods for a class (see R0903).
 min-public-methods = 2
@@ -418,7 +418,7 @@ indent-string = "    "
 
 # Maximum number of characters on a single line. Pylint's default of 100 is based
 # on PEP 8's guidance that teams may choose line lengths up to 99 characters.
-max-line-length = 120
+max-line-length = 130
 
 # Maximum number of lines in a module.
 max-module-lines = 1000
@@ -503,7 +503,7 @@ timeout-methods = ["requests.api.delete", "requests.api.get", "requests.api.head
 
 [tool.pylint.miscellaneous]
 # Whether or not to search for fixme's in docstrings.
-# check-fixme-in-docstring =
+check-fixme-in-docstring = true
 
 # List of note tags to take in consideration, separated by a comma.
 notes = ["FIXME", "XXX", "TODO"]
@@ -668,7 +668,7 @@ redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", 
 
 [tool.isort]
 profile = "black"
-line_length = 120
+line_length = 125
 multi_line_output = 3
 include_trailing_comma = true
 force_grid_wrap = 0
