@@ -17,7 +17,7 @@ def key_version(tag):
         patch = int(m.group(2))
         if m.group(5):
             return (major, minor, patch, False, int(m.group(5)))
-        mgroup4=int(m.group(4)) if m.group(4) else 0
+        mgroup4 = int(m.group(4)) if m.group(4) else 0
         return (major, minor, patch, True, mgroup4)
 
     # We purposely ignore x.y.z tags since those are from -stable and
@@ -128,7 +128,7 @@ def get_commit(commit, repo, force=False):
     return data
 
 
-def safe_filename(name, keep_non_patch_brackets = True):
+def safe_filename(name, keep_non_patch_brackets=True):
     """Return 'safe' version of the patch's filename."""
     if name is None:
         return name

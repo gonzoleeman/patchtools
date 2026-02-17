@@ -338,7 +338,7 @@ class Patch:
             n += 1
             if re.match(r'^-', line):
                 if start < 0:
-                    start = n - 3 # count this line
+                    start = n - 3  # count this line
                     if start < 0:
                         if debug:
                             print(f'resetting start(1) ({start}, {n})')
@@ -351,7 +351,7 @@ class Patch:
                 count = 0
             elif re.match(r'^\+', line):
                 if start < 0:
-                    start = n - 3 # count this line
+                    start = n - 3  # count this line
                     if start < 0:
                         if debug:
                             print(f'resetting start(2) ({start}, {n})')

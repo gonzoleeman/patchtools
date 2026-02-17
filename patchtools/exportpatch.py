@@ -15,10 +15,17 @@ from patchtools.patcherror import PatchError
 from patchtools.version import __version__
 
 # default: do not write out a patch file
-WRITE=False
+WRITE = False
 
 # default directory where patch gets written
-DIR='.'
+DIR = '.'
+
+# default and maximum width for the patch number
+DEF_PATCH_NUM_WIDTH = 4
+MAX_PATCH_NUM_WIDTH = 5
+
+# max patch number that can fit in 4 places
+MAX_PATCH_COUNT_VAL = 9999
 
 
 def export_patch(commit, options, prefix, suffix):
@@ -83,7 +90,7 @@ def main():
                         default=False)
     parser.add_argument('--num-width', type=int, action='store',
                         help='when used with -n, set the width of the order numbers',
-                        default=4)
+                        default=DEF_PATCH_NUM_WIDTH)
     parser.add_argument('-N', '--first-number', type=int, action='store',
                         help='Start numbering the patches with number instead of 1',
                         default=1)
@@ -124,18 +131,18 @@ def main():
         print(f'Error: {e}', file=sys.stderr)
         return 1
 
-    if args.first_number + len(args.commits) > 9999 or \
+    if args.first_number + len(args.commits) > MAX_PATCH_COUNT_VAL or \
        args.first_number < 0:
-        print('The starting number + commits needs to be in the range 0 - 9999',
+        print(f'The starting number + commits needs to be in the range 0 - {MAX_PATCH_COUNT_VAL}',
               file=sys.stderr)
         return 1
 
     suffix = '.patch' if args.suffix else ''
 
-    num_width = 4
+    num_width = DEF_PATCH_NUM_WIDTH
     if args.num_width:
         n_ = int(args.num_width)
-        if 0 < n_ < 5:
+        if 0 < n_ < MAX_PATCH_NUM_WIDTH:
             num_width = n_
 
     n = args.first_number
