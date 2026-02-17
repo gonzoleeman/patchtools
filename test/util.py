@@ -26,6 +26,7 @@ class NoLinuxRepoDirError(RuntimeError):
     def __init__(self, msg):
         self.msg = msg
 
+
 def get_git_repo_dir():
     """Get a valid Linux git repo path.
 

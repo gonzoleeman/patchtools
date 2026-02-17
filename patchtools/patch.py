@@ -16,17 +16,22 @@ from patchtools.patcherror import PatchError
 
 _patch_start_re = re.compile(r'^(---|\*\*\*|Index:)[ \t][^ \t]|^diff -|^index [0-9a-f]{7}')
 
+
 class InvalidCommitIDError(PatchError):
     """An invalid commit ID Error."""
+
 
 class InvalidPatchError(PatchError):
     """An invalid Patch Error."""
 
+
 class InvalidURLError(PatchError):
     """An invalid URL Error."""
 
+
 class EmptyCommitError(PatchError):
     """An empty commit Error."""
+
 
 class Patch:
     """The Patch class, representing one patch."""
@@ -75,7 +80,8 @@ class Patch:
             if re.search(r'#? .* \| ', line):
                 eat = eat + line + '\n'
                 continue
-            if re.match(r'#? .* files? changed(, .* insertions?\(\+\))?(, .* deletions?\(-\))?', line):
+            if re.match(r'#? .* files? changed(, .* insertions?\(\+\))?(, .* deletions?\(-\))?',
+                        line):
                 eat = ''
                 continue
             text += eat + line + '\n'

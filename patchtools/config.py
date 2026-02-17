@@ -84,7 +84,6 @@ class Config:
         """Return a canonicalized list of our repos."""
         return [self._canonicalize(r) for r in self.repos]
 
-
     def get_mainline_repos(self):
         """Return a cannonicalized list of the mainline repos."""
         return [self._canonicalize(r) for r in self.mainline_repos]

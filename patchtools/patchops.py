@@ -52,6 +52,7 @@ def get_tag(commit, repo):
         return m.group(1)
     return None
 
+
 def get_next_tag(repo):
     """Get the next tag."""
     tag = run_command("git tag -l 'v[0-9]*'", cwd=repo)
@@ -77,9 +78,11 @@ def get_next_tag(repo):
 
     return None
 
+
 def get_diffstat(message):
     """Return output of the diffstat command for our message."""
     return run_command('diffstat -p1', our_input=message)
+
 
 def get_git_repo_url(repo):
     """Return the remote git repo URL."""
@@ -89,6 +92,7 @@ def get_git_repo_url(repo):
         if m:
             return m.group(1)
     return None
+
 
 def confirm_commit(commit, repo):
     """Return whether or not the specified commit is in the specified repo."""
@@ -105,9 +109,11 @@ def confirm_commit(commit, repo):
         return False
     return True
 
+
 def canonicalize_commit(commit, repo):
     """Return git's cannonicalization of the specified commit."""
     return run_command(f'git show -s {commit}^{{}} --pretty=%H', cwd=repo)
+
 
 def get_commit(commit, repo, force=False):
     """Return git's idea of the specified commit."""
@@ -120,6 +126,7 @@ def get_commit(commit, repo, force=False):
         raise LocalCommitError('Commit is not in the remote repository. Use -f to override.')
 
     return data
+
 
 def safe_filename(name, keep_non_patch_brackets = True):
     """Return 'safe' version of the patch's filename."""
