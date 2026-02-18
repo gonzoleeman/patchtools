@@ -107,19 +107,13 @@ def main():
     parser.add_argument('-R', '--name-only', action='store_true', default=False,
                         help='Print the new filename for the patch but do not change anything')
     parser.add_argument('-F', '--reference', action='append', default=None,
-                        help=(
-                            'Add reference tag, if not in header-only mode. '
-                            'Can be supplied multiple times.'
-                            )
-                        )
+                        help=('Add reference tag, if not in header-only mode. '
+                              'Can be supplied multiple times.'))
     parser.add_argument('-S', '--signed-off-by', action='store_true', default=False,
                         help='Use Signed-off-by instead of Acked-by')
     parser.add_argument('-M', '--mainline', action='append', default=None,
-                        help=(
-                            'Add Patch-mainline tag. Replaces existing tag if any. '
-                            'Can be supplied multiple times.'
-                            )
-                        )
+                        help=('Add Patch-mainline tag. Replaces existing tag if any. '
+                              'Can be supplied multiple times.'))
     parser.add_argument('-s', '--suffix', action='store_true',
                         help='When generating the patch name, append ".patch" suffix to filenames.',
                         default=False)
