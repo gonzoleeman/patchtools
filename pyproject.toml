@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "patchtools"
 description = "Tools for handling upstream patches"
 readme = "README.md"
-license = {file = 'COPYING'}
+license = {file = "COPYING"}
 requires-python = ">= 3.6"
 authors = [
     {email = "jeffm@suse.com", name = "Jeff Mahoney"}
@@ -35,9 +35,12 @@ version = {attr = "patchtools.version.__version__"}
 
 [tool.ruff]
 line-length = 130
+target-version = "py311"
 exclude = [
     "*venv",
     "build",
+    "create",
+    ".git",
     ]
 
 [tool.ruff.lint]
@@ -103,9 +106,12 @@ ignore = [
 # Double quotes are currently prevalent in the codebase. Not being checked.
 inline-quotes = "single"
 
-[tools.ruff.format]
+[tool.ruff.format]
 quote-style = "single"
 indent-style = "space"
+
+[tool.ruff.lint.pylint]
+max-public-methods = 25
 
 [tool.pylint.main]
 # Analyse import fallback blocks. This can be used to support both Python 2 and 3
@@ -145,7 +151,7 @@ fail-under = 10.0
 # from-stdin =
 
 # Files or directories to be skipped. They should be base names, not paths.
-ignore = ["CVS"]
+ignore = [".git", "doc", "create", "setup.py"]
 
 # Add files or directories matching the regular expressions patterns to the
 # ignore-list. The regex matches against paths and can be in Posix or Windows
@@ -387,7 +393,7 @@ max-parents = 7
 max-positional-arguments = 5
 
 # Maximum number of public methods for a class (see R0904).
-max-public-methods = 20
+max-public-methods = 25
 
 # Maximum number of return / yield for function / method body.
 max-returns = 6
@@ -673,4 +679,4 @@ multi_line_output = 3
 include_trailing_comma = true
 force_grid_wrap = 0
 use_parentheses = false
-src_paths = ['patchtools']
+src_paths = ["patchtools", "test"]
