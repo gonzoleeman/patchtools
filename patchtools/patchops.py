@@ -105,9 +105,7 @@ def confirm_commit(commit, repo):
         return True
 
     commits = out.split()
-    if commit in commits:
-        return False
-    return True
+    return commit not in commits
 
 
 def canonicalize_commit(commit, repo):
