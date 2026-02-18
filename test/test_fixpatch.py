@@ -30,8 +30,8 @@ FILENAME_BOGUS = '/some/file'
 mut = import_mut(MUT)
 
 
-class TestFixpatchNormalFunctionality(unittest.TestCase):
-    """Test normal functionality for 'fixpatch'."""
+class TestFixpatchNormalFunctionalityA(unittest.TestCase):
+    """Test normal functionality for 'fixpatch' (group 1)."""
 
     @classmethod
     def setUpClass(cls):
@@ -194,6 +194,15 @@ class TestFixpatchNormalFunctionality(unittest.TestCase):
             res = filecmp.cmp(patch_path_expected,
                               f'{DATA_PATH}/{FIX_FILE_1F}.fixed_no_ack_or_diffstat')
             self.assertEqual(res, True, 'patch file differs from known good')
+
+
+class TestFixpatchNormalFunctionalityB(unittest.TestCase):
+    """Test normal functionality for 'fixpatch' (group 2)."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up the test class for this class. Done once per class."""
+        cls.assertTrue(DATA_PATH, 'cannot find "data" subdirectory')
 
     def test_fixpatch_update_only(self):
         """Test fixpatch, without adding diffstat, ack, or renaming."""
