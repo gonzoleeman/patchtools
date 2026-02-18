@@ -12,7 +12,6 @@ import shutil
 
 from setuptools import Command, setup
 
-
 # our scripts -- we will create front ends for these
 SCRIPT_MODULES = ['exportpatch', 'fixpatch']
 
