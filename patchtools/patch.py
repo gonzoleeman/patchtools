@@ -191,23 +191,6 @@ class Patch:
                                         'Queued in subsystem maintainer repo')
         self.handle_merge()
 
-    def from_file(self, pathname):
-        """Set up our Patch state from an email file."""
-        with Path(pathname).open('r', encoding='utf-8') as f:
-            self.from_email(f.read())
-
-    def files(self):
-        """Return a list of files from the difstat. (XXX only 1 returned?)"""
-        diffstat = patchops.get_diffstat(self.body())
-        f = []
-        for line in diffstat.splitlines():
-            m = re.search(r'#? (\S+) \| ', line)
-            if m:
-                f.append(m.group(1))
-            if not f:
-                return None
-            return f
-
     def find_commit(self):
         """Find current commit/repo and setup our instance from that."""
         for repo in self.repo_list:
@@ -470,12 +453,5 @@ class Patch:
 
         if is_empty:
             raise EmptyCommitError('Commit is empty')
-
-    def update_refs(self, refs):
-        """Update the References tag in our Patch."""
-        if 'References' not in self.message:
-            self.message.add_header('References', refs)
-        else:
-            self.message['References'] = refs
 
 # vim: sw=4 ts=4 et si:
