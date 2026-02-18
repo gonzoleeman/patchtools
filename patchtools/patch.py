@@ -46,7 +46,7 @@ class Patch:
         if self.debug:
             print('DEBUG: repo_list:', self.repo_list)
 
-        if commit and (re.search(r'\^', commit) or re.search(r'HEAD', commit)):
+        if commit and (re.search(r'\^', commit) or r'HEAD' in commit):
             raise InvalidCommitIDError('Commit IDs must be hashes, not relative references. HEAD and ^ are not allowed.')
 
     def add_diffstat(self):
@@ -121,7 +121,7 @@ class Patch:
                 text = text.rstrip() + '\n'
 
                 # If this is the first *-by tag, separate it
-                if not re.search(r'-by: ', last):
+                if r'-by: ' not in last:
                     text += '\n'
                 tag = 'Signed-off-by' if sob else 'Acked-by'
                 text += f'{tag}: {self.config.name} <{self.config.email}>\n'
@@ -452,7 +452,7 @@ class Patch:
 
         if partial:
             commit = self.message['Git-commit']
-            if not '(partial)' in commit:
+            if '(partial)' not in commit:
                 self.message.replace_header('Git-commit',
                                             f'{commit} (partial)')
             if exclude:
@@ -473,7 +473,7 @@ class Patch:
 
     def update_refs(self, refs):
         """Update the References tag in our Patch."""
-        if not 'References' in self.message:
+        if 'References' not in self.message:
             self.message.add_header('References', refs)
         else:
             self.message['References'] = refs
