@@ -4,11 +4,8 @@ Support package for doing SUSE Patch operations
 
 import email.parser
 import re
-import urllib.error
-import urllib.parse
-import urllib.request
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 from patchtools import patchops
 from patchtools.config import Config
@@ -225,7 +222,7 @@ class Patch:
     def parse_commitdiff_header(self):
         """Parse our commit's diff header and fill in state from that."""
         url = self.message['X-Git-Url']
-        url = urllib.parse.unquote(url)
+        url = unquote(url)
 
         uc = urlparse(url)
         if not uc.scheme:
@@ -233,7 +230,7 @@ class Patch:
 
         args = dict([x.split('=', 1) for x in uc.query.split(';')])
         if 'p' in args:
-            args['p'] = urllib.parse.unquote(args['p'])
+            args['p'] = unquote(args['p'])
 
         if uc.netloc == 'git.kernel.org':
             self.repo = None
