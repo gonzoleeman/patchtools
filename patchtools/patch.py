@@ -435,10 +435,7 @@ class Patch:
             if '(partial)' not in commit:
                 self.message.replace_header('Git-commit',
                                             f'{commit} (partial)')
-            if exclude:
-                filtered_header = ' !'.join([''] + files)[1:]
-            else:
-                filtered_header = ' '.join(files)
+            filtered_header = ' !'.join(['', *files])[1:] if exclude else ' '.join(files)
 
             if 'Patch-filtered' in self.message:
                 h = self.message['Patch-filtered']
