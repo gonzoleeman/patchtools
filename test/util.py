@@ -42,16 +42,19 @@ def get_git_repo_dir():
     return linux_git_dir
 
 
-def create_config_file():
+def create_config_file(empty=False):
     """Create a minimal config file, for testing."""
     git_repo_dir = get_git_repo_dir()
     cfp = Path('patch.cfg')
-    with cfp.open('w', encoding='utf-8') as configf:
-        for aline in PATCH_CFG_TEMPLATE:
-            if '@PATHNAME@' in aline:
-                print(aline.replace('@PATHNAME@', git_repo_dir), file=configf)
-            else:
-                print(aline, file=configf)
+    if empty:
+        cfp.touch()
+    else:
+        with cfp.open('w', encoding='utf-8') as configf:
+            for aline in PATCH_CFG_TEMPLATE:
+                if '@PATHNAME@' in aline:
+                    print(aline.replace('@PATHNAME@', git_repo_dir), file=configf)
+                else:
+                    print(aline, file=configf)
     return cfp
 
 
