@@ -11,7 +11,10 @@ from patchtools import patchops
 from patchtools.config import Config
 from patchtools.patcherror import PatchError
 
-_patch_start_re = re.compile(r'^(---|\*\*\*|Index:)[ \t][^ \t]|^diff -|^index [0-9a-f]{7}')
+_PATCH_START_RE = re.compile(r'^(---|\*\*\*|Index:)[ \t][^ \t]|^diff -|^index [0-9a-f]{7}')
+
+# number of patch lines to skip (including current line)
+_SKIP = 3
 
 
 class InvalidCommitIDError(PatchError):
@@ -270,7 +273,7 @@ class Patch:
         ret = ''
         for line in self.message.get_payload().splitlines():
             if not in_body:
-                if _patch_start_re.match(line):
+                if _PATCH_START_RE.match(line):
                     in_body = True
                     continue
                 ret += line + '\n'
@@ -284,7 +287,7 @@ class Patch:
         ret = ''
         for line in self.message.get_payload().splitlines():
             if not in_body:
-                if _patch_start_re.match(line):
+                if _PATCH_START_RE.match(line):
                     in_body = True
                     ret += line + '\n'
             else:
@@ -301,7 +304,6 @@ class Patch:
     @staticmethod
     def shrink_chunk(chunk):
         """Class function to shrink patch body."""
-        n = -1
         text = ''
         start = -1
         end = -1
@@ -311,11 +313,10 @@ class Patch:
         count = 0
         lines = chunk.splitlines()
         debug = False
-        for line in lines:
-            n += 1
+        for n, line in enumerate(lines):
             if re.match(r'^-', line):
                 if start < 0:
-                    start = n - 3  # count this line
+                    start = n - _SKIP  # count this line
                     if start < 0:
                         if debug:
                             print(f'resetting start(1) ({start}, {n})')
@@ -328,7 +329,7 @@ class Patch:
                 count = 0
             elif re.match(r'^\+', line):
                 if start < 0:
-                    start = n - 3  # count this line
+                    start = n - _SKIP  # count this line
                     if start < 0:
                         if debug:
                             print(f'resetting start(2) ({start}, {n})')
@@ -341,7 +342,7 @@ class Patch:
                 count = 0
             else:
                 count += 1
-                if start >= 0 > end and (count > 3 or n + 1 == len(lines)):
+                if start >= 0 > end and (count > _SKIP or n + 1 == len(lines)):
                     end = n  # count this line
                     if end >= len(lines):
                         if debug:
@@ -371,7 +372,7 @@ class Patch:
         in_chunk = False
         lines = self.body().splitlines()
         for line in lines:
-            if _patch_start_re.match(line):
+            if _PATCH_START_RE.match(line):
                 if in_chunk:
                     text += Patch.shrink_chunk(chunk)
                     chunk = ''
@@ -385,12 +386,11 @@ class Patch:
                     text += chunk
                 chunk = ''
                 in_chunk = True
+            elif in_chunk:
+                if line[1] == ' ' or line[1] == '+':
+                    chunk += line[0:1] + line[2:] + '\n'
             else:
-                if in_chunk:
-                    if line[1] == ' ' or line[1] == '+':
-                        chunk += line[0:1] + line[2:] + '\n'
-                else:
-                    chunk += line + '\n'
+                chunk += line + '\n'
 
         if in_chunk:
             text += Patch.shrink_chunk(chunk)
@@ -408,7 +408,7 @@ class Patch:
         partial = False
 
         for line in self.body().splitlines():
-            if _patch_start_re.match(line):
+            if _PATCH_START_RE.match(line):
                 if filename:
                     if exclude ^ Patch.file_in_path(filename, files):
                         body += chunk + '\n'
