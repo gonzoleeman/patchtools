@@ -293,13 +293,10 @@ class Patch:
 
     @staticmethod
     def file_in_path(filename, paths):
-        """Class function to check for filename in path."""
+        """Class function to check for filename in paths."""
         if filename in paths:
             return True
-        for f in paths:
-            if f[-1:] == '/' and f in filename:
-                return True
-        return False
+        return any(f[-1:] == '/' and f in filename for f in paths)
 
     @staticmethod
     def shrink_chunk(chunk):
