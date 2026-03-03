@@ -21,7 +21,7 @@ def key_version(tag):
 
     # We purposely ignore x.y.z tags since those are from -stable and
     # will never be used in a mainline tag.
-    m = re.match(r"v(\d+)\.(\d+)(-rc(\d+)|)", tag)
+    m = re.fullmatch(r"v(\d+)\.(\d+)(-rc(\d+)|)", tag)
     if m:
         major = int(m.group(1))
         minor = int(m.group(2))
